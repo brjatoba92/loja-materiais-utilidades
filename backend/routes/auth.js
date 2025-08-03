@@ -23,7 +23,7 @@ router.post('/login', [
         const {usuario, senha} = req.body;
 
         //BUSCAR ADMIN
-        const query = 'SELECT * FROM admin WHERE usuario = $1';
+        const query = 'SELECT * FROM administradores WHERE usuario = $1';
         const result = await pool.query(query, [usuario]);
 
         if (result.rows.length === 0) {
@@ -56,7 +56,7 @@ router.post('/login', [
 
         // Atualizar último acesso
         await pool.query(
-            'UPDATE admin SET ultimo_acesso = NOW() WHERE id = $1',
+            'UPDATE administradores SET ultimo_acesso = NOW() WHERE id = $1',
             [admin.id]
         );
 
