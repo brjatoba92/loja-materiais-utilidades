@@ -4,10 +4,14 @@ import api from './api';
 // Função de login do admin que está sendo usada no código
 export const loginAdmin = async (credentials) => {
     try {
+        console.log('🔐 Tentando login com:', credentials);
         const response = await api.post('/auth/login', credentials);
+        console.log('✅ Resposta do servidor:', response.data);
         return response.data;
     } catch (error) {
-        console.error('Erro no login:', error);
+        console.error('❌ Erro no login:', error);
+        console.error('❌ Status:', error.response?.status);
+        console.error('❌ Data:', error.response?.data);
         throw error;
     }
 };

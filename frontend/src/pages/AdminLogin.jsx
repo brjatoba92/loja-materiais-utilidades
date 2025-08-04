@@ -18,19 +18,24 @@ const AdminLogin = () => {
 
   const onSubmit = async (data) => {
     setIsLoading(true);
+    console.log('📝 Dados do formulário:', data);
     
     try {
       const response = await loginAdmin(data);
+      console.log('🎉 Login bem-sucedido:', response);
       
       if (response.token) {
         localStorage.setItem('admin_token', response.token);
         toast.success('Login realizado com sucesso!');
         navigate('/admin');
       } else {
+        console.log('⚠️ Resposta sem token:', response);
         toast.error('Credenciais inválidas');
       }
     } catch (error) {
-      console.error('Erro no login:', error);
+      console.error('❌ Erro no login:', error);
+      console.error('❌ Tipo de erro:', typeof error);
+      console.error('❌ Mensagem:', error.message);
       toast.error('Erro ao fazer login. Verifique suas credenciais.');
     } finally {
       setIsLoading(false);
