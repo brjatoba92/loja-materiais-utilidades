@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { Eye, EyeOff, Lock, User, Package } from 'lucide-react';
-import { loginAdmin } from '../services/userService';
+import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
 
 const AdminLogin = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -18,24 +19,15 @@ const AdminLogin = () => {
 
   const onSubmit = async (data) => {
     setIsLoading(true);
-    console.log('📝 Dados do formulário:', data);
     
     try {
-      const response = await loginAdmin(data);
-      console.log('🎉 Login bem-sucedido:', response);
+      const result = await login(data.usuario, data.senha);
       
-      if (response.token) {
-        localStorage.setItem('admin_token', response.token);
-        toast.success('Login realizado com sucesso!');
+      if (result.success) {
         navigate('/admin');
-      } else {
-        console.log('⚠️ Resposta sem token:', response);
-        toast.error('Credenciais inválidas');
       }
     } catch (error) {
-      console.error('❌ Erro no login:', error);
-      console.error('❌ Tipo de erro:', typeof error);
-      console.error('❌ Mensagem:', error.message);
+      console.error('Erro no login:', error);
       toast.error('Erro ao fazer login. Verifique suas credenciais.');
     } finally {
       setIsLoading(false);

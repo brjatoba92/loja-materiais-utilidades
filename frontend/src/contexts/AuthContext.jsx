@@ -39,9 +39,9 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
-  const login = async (username, password) => {
+  const login = async (usuario, senha) => {
     try {
-      const response = await api.post('/auth/login', { username, password })
+      const response = await api.post('/auth/login', { usuario, senha })
       
       const { token, admin } = response.data
       
@@ -49,11 +49,11 @@ export const AuthProvider = ({ children }) => {
       api.defaults.headers.Authorization = `Bearer ${token}`
       
       setAdmin(admin)
-      toast.success('Login successful!')
+      toast.success('Login realizado com sucesso!')
 
-      return { sucess: true }
+      return { success: true }
     } catch (error) {
-      const message = error.response?.data?.message || 'Login failed. Please try again.'
+      const message = error.response?.data?.message || 'Erro ao fazer login. Tente novamente.'
       toast.error(message)
       return { success: false, message }
     }
