@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { ShoppingCart, Menu, X, Home, Package, User } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { ShoppingCart, Menu, X, Home, Package, User, LogOut } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
+import { useAuth } from '../contexts/AuthContext';
 
 const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
     const { getItemsCount } = useCart();
+    const { admin, logout } = useAuth();
     const location = useLocation();
+    const navigate = useNavigate();
 
     const isActive = (path) => location.pathname === path;
 
@@ -14,6 +17,13 @@ const Navbar = () => {
         { path: '/', label: 'Home', icon: Home },
         { path: '/produtos', label: 'Produtos', icon: Package }
     ];
+
+    const handleLogout = () => {
+        logout();
+        setIsOpen(false);
+        navigate('/');
+    };
+
     return (
         <nav className="bg-white shadow-lg sticky top-0 z-50">
             <div className='container-custom'>
@@ -60,14 +70,29 @@ const Navbar = () => {
                             )}
                         </Link>
 
-                        {/* Admin */}
-                        <Link 
-                            to='/admin/login' 
-                            className="flex items-center space-x-1 text-sm font-medium text-gray-700 hover:text-primary-600 transition-colors" 
-                        >
-                            <User className='w-4 h-4' />
-                            <span>Admin</span>
-                        </Link>
+                        {/* Admin/Logout */}
+                        {admin ? (
+                            <div className="flex items-center space-x-2">
+                                <span className="text-sm text-gray-600">
+                                    Olá, {admin.nome || 'Administrador'}
+                                </span>
+                                <button
+                                    onClick={handleLogout}
+                                    className="flex items-center space-x-1 text-sm font-medium text-red-600 hover:text-red-700 transition-colors"
+                                >
+                                    <LogOut className='w-4 h-4' />
+                                    <span>Sair</span>
+                                </button>
+                            </div>
+                        ) : (
+                            <Link 
+                                to='/admin/login' 
+                                className="flex items-center space-x-1 text-sm font-medium text-gray-700 hover:text-primary-600 transition-colors" 
+                            >
+                                <User className='w-4 h-4' />
+                                <span>Admin</span>
+                            </Link>
+                        )}
                     </div>
 
                     {/* Mobile menu button */}
@@ -107,14 +132,30 @@ const Navbar = () => {
                                     <ShoppingCart className='w-5 h-5' />
                                     <span>Carrinho ({getItemsCount()})</span>
                                 </Link>
-                                <Link
-                                    to='/admin/login'
-                                    onClick={() => setIsOpen(false)}
-                                    className='flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50'
-                                >
-                                    <User className='w-5 h-5' />
-                                    <span>Admin</span>
-                                </Link>
+                                
+                                {admin ? (
+                                    <div className="space-y-1">
+                                        <div className="px-3 py-2 text-sm text-gray-600 border-b border-gray-200">
+                                            Olá, {admin.nome || 'Administrador'}
+                                        </div>
+                                        <button
+                                            onClick={handleLogout}
+                                            className='flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium text-red-600 hover:text-red-700 hover:bg-red-50 w-full'
+                                        >
+                                            <LogOut className='w-5 h-5' />
+                                            <span>Sair</span>
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <Link
+                                        to='/admin/login'
+                                        onClick={() => setIsOpen(false)}
+                                        className='flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50'
+                                    >
+                                        <User className='w-5 h-5' />
+                                        <span>Admin</span>
+                                    </Link>
+                                )}
                             </div>
                         </div>
                     )}
