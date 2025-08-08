@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { 
   Plus, 
   Search, 
@@ -13,6 +13,7 @@ import {
   XCircle
 } from 'lucide-react';
 import { getProducts, deleteProduct } from '../services/productService';
+import { productService } from '../services/productService';
 import LoadingSpinner from '../components/LoadingSpinner';
 import toast from 'react-hot-toast';
 import { useDebounce } from '../hooks/useDebounce';
@@ -27,7 +28,19 @@ const AdminProducts = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [selectedProducts, setSelectedProducts] = useState([]);
+  const [lowStockMode, setLowStockMode] = useState({ enabled: false, threshold: 10 });
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
+  const location = useLocation();
+
+  // Lê query string para ativar o modo de baixo estoque
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const enabled = params.get('lowStock') === '1';
+    const thresholdParam = parseInt(params.get('threshold') || '10', 10);
+    const threshold = Number.isFinite(thresholdParam) ? thresholdParam : 10;
+    setLowStockMode({ enabled, threshold });
+    setCurrentPage(1);
+  }, [location.search]);
 
   const categories = [
     'Todos',
@@ -51,25 +64,31 @@ const AdminProducts = () => {
 
   useEffect(() => {
     fetchProducts();
-  }, [debouncedSearchTerm, selectedCategory, sortBy, currentPage]);
+  }, [debouncedSearchTerm, selectedCategory, sortBy, currentPage, lowStockMode]);
 
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const params = {
-        page: currentPage,
-        limit: 20,
-        busca: debouncedSearchTerm,
-        categoria: selectedCategory !== 'Todos' ? selectedCategory : '',
-        ordenar: sortBy
-      };
-
-      const response = await getProducts(params);
-      setProducts(response?.produtos || response || []);
-      const pages = response?.pagination?.pages || response?.totalPages || 1;
-      const total = response?.pagination?.total || 0;
-      setTotalPages(pages);
-      setTotalCount(total);
+      if (lowStockMode.enabled) {
+        const res = await productService.getLowStock({ threshold: lowStockMode.threshold, limit: 100 });
+        setProducts(res?.produtos || []);
+        setTotalPages(1);
+        setTotalCount((res?.produtos || []).length);
+      } else {
+        const params = {
+          page: currentPage,
+          limit: 20,
+          busca: debouncedSearchTerm,
+          categoria: selectedCategory !== 'Todos' ? selectedCategory : '',
+          ordenar: sortBy
+        };
+        const response = await getProducts(params);
+        setProducts(response?.produtos || response || []);
+        const pages = response?.pagination?.pages || response?.totalPages || 1;
+        const total = response?.pagination?.total || 0;
+        setTotalPages(pages);
+        setTotalCount(total);
+      }
     } catch (error) {
       console.error('Erro ao carregar produtos:', error);
       toast.error('Erro ao carregar produtos');
@@ -161,6 +180,11 @@ const AdminProducts = () => {
               <p className="text-gray-600">
                 Gerencie todos os produtos da sua loja
               </p>
+              {lowStockMode.enabled && (
+                <p className="text-sm text-yellow-800 bg-yellow-50 border border-yellow-200 rounded mt-3 px-3 py-2 inline-block">
+                  Exibindo produtos com estoque ≤ {lowStockMode.threshold}.
+                </p>
+              )}
             </div>
             <Link
               to="/admin/produtos/novo"
@@ -173,7 +197,7 @@ const AdminProducts = () => {
         </div>
 
         {/* Filtros e Busca */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+        <div className={`bg-white rounded-lg shadow-md p-6 mb-8 ${lowStockMode.enabled ? 'opacity-60 pointer-events-none' : ''}`}> 
           <div className="grid md:grid-cols-4 gap-4">
             {/* Busca */}
             <div className="md:col-span-2">

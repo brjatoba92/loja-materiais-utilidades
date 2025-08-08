@@ -17,6 +17,8 @@ import {
 } from 'lucide-react';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { orderService } from '../services/orderService';
+import { productService } from '../services/productService';
+import { userService } from '../services/userService';
 import { statsService } from '../services/statsService';
 
 const AdminDashboard = () => {
@@ -44,10 +46,13 @@ const AdminDashboard = () => {
     }
   });
   const [period, setPeriod] = useState(''); // '', '30d', '90d'
+  const [lowStock, setLowStock] = useState({ products: [], threshold: 10 });
+  const [lowStockThreshold, setLowStockThreshold] = useState(10);
+  const [topCustomers, setTopCustomers] = useState([]); // { id, nome, email, pontos_cashback }
 
   useEffect(() => {
     fetchDashboardData();
-  }, [period]);
+  }, [period, lowStockThreshold]);
 
   const fetchDashboardData = async () => {
     setLoading(true);
@@ -96,6 +101,7 @@ const AdminDashboard = () => {
         recentOrders: pedidos.map((p) => ({
           id: p.id,
           customer: p.usuario_nome || p.usuario_email || `Usuário #${p.usuario_id}`,
+          customerPoints: p.usuario_pontos,
           total: Number(p.total) || 0,
           status: p.status || 'confirmado',
           date: new Date(p.created_at).toISOString().slice(0, 10),
@@ -118,6 +124,22 @@ const AdminDashboard = () => {
           customersPrev: ps?.totalCustomers ?? null,
         }
       }));
+
+      // Buscar produtos com baixo estoque (limite 10 por padrão)
+      try {
+        const lowRes = await productService.getLowStock({ threshold: lowStockThreshold, limit: 10 });
+        setLowStock({ products: lowRes?.produtos || [], threshold: lowRes?.threshold ?? lowStockThreshold });
+      } catch (e) {
+        console.warn('Falha ao carregar produtos com baixo estoque:', e);
+      }
+
+      // Buscar clientes e sua pontuação (top 5 por pontos)
+      try {
+        const usersRes = await userService.list({ page: 1, limit: 5, sort: 'pontos_desc' });
+        setTopCustomers(usersRes?.usuarios || []);
+      } catch (e) {
+        console.warn('Falha ao carregar pontuação de clientes:', e);
+      }
     } catch (error) {
       console.error('Erro ao carregar dados do dashboard:', error);
     } finally {
@@ -171,6 +193,54 @@ const AdminDashboard = () => {
             Visão geral da sua loja
           </p>
         </div>
+
+        {/* Aviso de Baixo Estoque */}
+        {lowStock.products.length > 0 && (
+          <div className="mb-4">
+            <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-lg">
+              <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                <p className="text-sm">
+                  <span className="font-semibold">Atenção:</span> Há {lowStock.products.length} produto(s) com estoque baixo (≤ {lowStock.threshold}).
+                  Sugerimos verificar a quantidade real no estoque.
+                </p>
+                <div className="flex items-center gap-3">
+                  <label className="text-sm">Limite:</label>
+                  <select
+                    value={lowStockThreshold}
+                    onChange={(e) => setLowStockThreshold(Number(e.target.value))}
+                    className="text-sm border border-yellow-300 rounded px-2 py-1 bg-white"
+                    title="Defina o limite para considerar estoque baixo"
+                  >
+                    <option value={5}>≤ 5</option>
+                    <option value={10}>≤ 10</option>
+                    <option value={20}>≤ 20</option>
+                    <option value={50}>≤ 50</option>
+                  </select>
+                  <a
+                    href={`/admin/produtos?lowStock=1&threshold=${lowStockThreshold}`}
+                    className="text-sm text-yellow-900 underline hover:no-underline"
+                  >
+                    Ver todos
+                  </a>
+                </div>
+              </div>
+              <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm">
+                {lowStock.products.slice(0, 5).map((p) => (
+                  <span key={p.id} className="inline-flex items-center gap-1">
+                    <span className="px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded-full">
+                      {p.nome} · {p.estoque}
+                    </span>
+                  </span>
+                ))}
+                {lowStock.products.length > 5 && (
+                  <span className="text-yellow-700">
+                    +{lowStock.products.length - 5} mais
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Filtro de Período e Cards de Estatísticas */}
         <div className="flex justify-end mb-2">
@@ -305,6 +375,9 @@ const AdminDashboard = () => {
                           <div>
                             <p className="font-medium text-gray-900">{order.customer}</p>
                             <p className="text-sm text-gray-600">Pedido #{order.id}</p>
+                            {order.customerPoints !== undefined && (
+                              <p className="text-xs text-purple-700 mt-1">Pontos do cliente: {order.customerPoints}</p>
+                            )}
                           </div>
                           <div className="text-right">
                             <p className="font-medium text-gray-900">{formatCurrency(order.total)}</p>
@@ -324,14 +397,14 @@ const AdminDashboard = () => {
             </div>
           </div>
 
-          {/* Produtos Mais Vendidos */}
+          {/* Clientes e Pontuação */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg shadow-md">
               <div className="p-6 border-b border-gray-200">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-xl font-semibold text-gray-900">Produtos Mais Vendidos</h2>
+                  <h2 className="text-xl font-semibold text-gray-900">Clientes e Pontuação</h2>
                   <Link
-                    to="/admin/produtos"
+                    to="/admin/clientes"
                     className="text-primary-600 hover:text-primary-700 text-sm font-medium"
                   >
                     Ver todos
@@ -341,19 +414,19 @@ const AdminDashboard = () => {
               
               <div className="p-6">
                 <div className="space-y-4">
-                  {stats.topProducts.map((product, index) => (
-                    <div key={product.id} className="flex items-center justify-between">
+                  {topCustomers.map((user, index) => (
+                    <div key={user.id} className="flex items-center justify-between">
                       <div className="flex items-center">
-                        <div className="w-8 h-8 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center text-sm font-bold mr-3">
+                        <div className="w-8 h-8 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center text-sm font-bold mr-3">
                           {index + 1}
                         </div>
                         <div>
-                          <p className="font-medium text-gray-900">{product.name}</p>
-                          <p className="text-sm text-gray-600">{product.sales} vendas</p>
+                          <p className="font-medium text-gray-900">{user.nome}</p>
+                          <p className="text-sm text-gray-600">{user.email}</p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="font-medium text-gray-900">{formatCurrency(product.revenue)}</p>
+                        <p className="font-medium text-gray-900">{user.pontos_cashback} pontos</p>
                       </div>
                     </div>
                   ))}

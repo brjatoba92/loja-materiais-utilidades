@@ -229,7 +229,7 @@ router.get('/', async (req, res) => {
         const { status, page = 1, limit = 20 } = req.query;
 
         let query = `
-            SELECT p.*, u.nome as usuario_nome, u.email as usuario_email
+            SELECT p.*, u.nome as usuario_nome, u.email as usuario_email, u.pontos_cashback as usuario_pontos
             FROM pedidos p
             LEFT JOIN usuarios u ON p.usuario_id = u.id
         `;

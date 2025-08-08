@@ -14,6 +14,8 @@ import AdminOrders from "./pages/AdminOrders";
 import AdminOrderDetails from "./pages/AdminOrderDetails";
 import AdminProductNew from "./pages/AdminProductNew";
 import AdminProductEdit from "./pages/AdminProductEdit";
+import AdminRelatorios from "./pages/AdminRelatorios";
+import AdminCustomers from "./pages/AdminCustomers";
 import PrivateRoute from "./components/PrivateRoute";
 
 function App() {
@@ -60,6 +62,16 @@ function App() {
           <Route path="/admin/pedidos/:id" element={
             <PrivateRoute>
               <AdminOrderDetails />
+            </PrivateRoute>
+          } />
+          <Route path="/admin/relatorios" element={
+            <PrivateRoute>
+              <AdminRelatorios />
+            </PrivateRoute>
+          } />
+          <Route path="/admin/clientes" element={
+            <PrivateRoute>
+              <AdminCustomers />
             </PrivateRoute>
           } />
         </Routes>
