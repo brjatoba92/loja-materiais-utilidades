@@ -13,8 +13,8 @@ const Home = () => {
   useEffect(() => {
     const fetchFeaturedProducts = async () => {
       try {
-        const products = await getProducts({ limit: 8, featured: true });
-        setFeaturedProducts(products);
+        const response = await getProducts({ limit: 8, featured: true });
+        setFeaturedProducts(response?.produtos || response || []);
       } catch (error) {
         console.error('Erro ao carregar produtos:', error);
       } finally {
@@ -123,7 +123,7 @@ const Home = () => {
               <div key={product.id} className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
                 <div className="relative">
                   <img
-                    src={product.imagem || '/placeholder-product.jpg'}
+                    src={product.imagem_url || product.imagem || '/placeholder-product.jpg'}
                     alt={product.nome}
                     className="w-full h-48 object-cover rounded-t-lg"
                   />
@@ -157,11 +157,11 @@ const Home = () => {
                     <div>
                       {product.preco_original > product.preco && (
                         <span className="text-sm text-gray-500 line-through">
-                          R$ {product.preco_original.toFixed(2)}
+                          R$ {(Number(product.preco_original) || 0).toFixed(2)}
                         </span>
                       )}
                       <span className="text-lg font-bold text-primary-600">
-                        R$ {product.preco.toFixed(2)}
+                        R$ {(Number(product.preco) || 0).toFixed(2)}
                       </span>
                     </div>
                     <span className="text-sm text-gray-600">
