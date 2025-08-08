@@ -1,74 +1,240 @@
-# Frontend – Loja de Utilidades (React + Vite)
+# Frontend - Loja de Utilidades Domésticas
+## Sistema E-commerce Completo (React + Vite + Tailwind)
 
-SPA em React com painel administrativo e área do cliente, integrada ao backend Node/Express.
+SPA responsiva em React com painel administrativo completo, área do cliente, sistema de carrinho, checkout com cashback e dashboard analytics. Totalmente integrada ao backend Node.js/Express.
 
-## 🚀 Como rodar
+---
 
-1. Instale deps
+## 🏗️ Tecnologias e Arquitetura
+
+### Stack Principal
+- **React 18**: Interface moderna com hooks
+- **Vite**: Build tool e dev server rápido
+- **Tailwind CSS**: Framework CSS utility-first
+- **React Router DOM**: Roteamento SPA
+- **Axios**: Cliente HTTP para API
+
+### Bibliotecas e Ferramentas
+- **Lucide React**: Ícones SVG modernos
+- **React Hook Form**: Formulários performáticos
+- **React Hot Toast**: Notificações elegantes
+- **Headless UI**: Componentes acessíveis
+
+---
+
+## 🚀 Como Executar
+
+### Pré-requisitos
+- Node.js (v16+)
+- Backend rodando em `http://localhost:5000`
+
+### Instalação e Execução
 ```bash
+# 1. Instalar dependências
 npm install
-```
-2. Desenvolvimento
-```bash
+
+# 2. Configurar variável de ambiente
+# Criar arquivo .env:
+VITE_API_URL=http://localhost:5000/api
+
+# 3. Modo desenvolvimento
 npm run dev
-```
-3. Build e Preview
-```bash
+
+# 4. Build para produção
 npm run build
+
+# 5. Preview do build
 npm run preview
+
+# 6. Linting
+npm run lint
 ```
 
-## 🧭 Rotas Principais
+### Acessos
+- **Frontend**: http://localhost:3000
+- **Admin Login**: http://localhost:3000/admin/login
+- **Credenciais padrão**: admin / 123456
 
-- Público
-  - `/` Home
-  - `/produtos` Lista com busca/filtros/paginação
-  - `/produto/:id` Detalhes do produto
-  - `/carrinho` Carrinho
-  - `/checkout` Finalização
+---
 
-- Admin (protegidas)
-  - `/admin` Dashboard
-  - `/admin/produtos` Gerenciar produtos
-  - `/admin/produtos/novo` Criar produto
-  - `/admin/produtos/editar/:id` Editar produto
-  - `/admin/pedidos` Listar pedidos
-  - `/admin/pedidos/:id` Detalhes do pedido
+## 🧭 Estrutura de Rotas Implementadas
 
-## 🆕 Atualizações Recentes (2025-08)
+### 🌐 Área Pública (Cliente)
+```
+/                           # Home - Hero section + produtos em destaque
+/produtos                   # Catálogo completo com filtros e busca
+/produto/:id               # Detalhes do produto + adicionar ao carrinho
+/carrinho                  # Carrinho de compras + gestão de itens
+/checkout                  # Finalização com cashback automático
+```
 
-### Dashboard
-- Cards de Pedidos, Receita e Clientes com variação percentual real vs. período anterior (30/90 dias), com cores e setas.
-- Tooltip nos cards com valores absolutos (período atual e anterior).
-- Gráfico de Receita Mensal consumindo `/api/stats/revenue-monthly`, exibe valores em cada barra.
-- Seletor de período (Tudo, 30d, 90d) que filtra stats via `/api/stats/dashboard?startDate&endDate`.
+### 🔐 Área Administrativa (Protegida por JWT)
+```
+/admin/login               # Login administrativo
+/admin                     # Dashboard com estatísticas e gráficos
+/admin/produtos            # Gerenciar produtos (CRUD)
+/admin/produtos/novo       # Criar novo produto
+/admin/produtos/editar/:id # Editar produto existente
+/admin/pedidos             # Listar e gerenciar pedidos
+/admin/pedidos/:id         # Detalhes do pedido + exclusão
+/admin/clientes            # Gestão de clientes e pontos
+/admin/relatorios          # Relatórios e analytics
+```
 
-### Pedidos
-- Listagem paginada com filtro por status e link para detalhes.
-- Página de detalhes com itens, totais e metadados.
-- Exclusão de pedidos (lista e detalhe) com confirmação; integra `DELETE /api/pedidos/:id`.
+---
 
-### Produtos
-- Gerenciar Produtos usa paginação real da API (mostra total e páginas corretamente).
-- “Novo Produto”: campo Categoria agora lista categorias existentes (via `/api/produtos/categorias/distinct`) e permite cadastrar uma nova.
-- “Editar Produto”: formulário com dados carregados e persistência via API.
+## ✨ Funcionalidades Implementadas
 
-### Navbar
-- Quando admin logado, exibe atalho “Dashboard” (desktop e mobile) para `/admin`.
+### 🛒 E-commerce Completo
+- **Catálogo de Produtos**: Listagem paginada com filtros por categoria e busca
+- **Detalhes do Produto**: Página individual com informações completas
+- **Carrinho de Compras**: Gestão de itens, quantidades e totais
+- **Checkout Inteligente**: Finalização com sistema de cashback automático
+- **Sistema de Pontos**: 1 ponto = R$ 1,00 a cada R$ 50,00 gastos
 
-## 🔧 Services relevantes
+### 📊 Dashboard Administrativo Avançado
+- **Estatísticas em Tempo Real**: Cards com métricas de pedidos, receita e clientes
+- **Variação Percentual**: Comparação com períodos anteriores (30/90 dias)
+- **Gráfico de Receita**: Visualização mensal dos últimos 12 meses
+- **Filtros de Período**: Seletor para análise customizada (Tudo, 30d, 90d)
+- **Tooltips Informativos**: Valores absolutos e comparativos
 
-- `services/statsService.js`: `getDashboardStats`, `getMonthlyRevenue`
-- `services/orderService.js`: `getOrders`, `getOrderById`, `deleteOrder`
-- `services/productService.js`: `getProducts`, `getProductById`, `createProduct`, `updateProduct`, `deleteProduct`, `getDistinctCategories`
+### 🏪 Gestão de Produtos
+- **CRUD Completo**: Criar, editar, visualizar e excluir produtos
+- **Paginação Real**: Navegação correta com total de registros
+- **Categorias Dinâmicas**: Seleção de categorias existentes + criação de novas
+- **Controle de Estoque**: Gestão em tempo real
+- **Upload de Imagens**: Interface para fotos dos produtos
 
-## 🛡️ Proteção de Rotas
+### 📦 Gestão de Pedidos
+- **Listagem Paginada**: Filtros por status e busca
+- **Detalhes Completos**: Visualização de itens, totais e metadados
+- **Exclusão Segura**: Confirmação para remoção de pedidos
+- **Status Tracking**: Acompanhamento do estado dos pedidos
 
-- `components/PrivateRoute.jsx` protege rotas admin via token JWT armazenado em `localStorage` (`admin_token`).
+### 👥 Gestão de Clientes
+- **Listagem de Usuários**: Busca e ordenação por pontos/nome
+- **Sistema de Pontos**: Visualização do cashback acumulado
+- **Histórico de Compras**: Acompanhamento por cliente
 
-## 🧪 Notas
+### 📈 Relatórios e Analytics
+- **Métricas de Vendas**: Análise de performance
+- **Dados Comparativos**: Períodos customizáveis
+- **Visualizações Gráficas**: Charts responsivos
 
-- API base configurada em `services/api.js` (`http://localhost:5000/api`).
-- Para usar rotas admin, faça login em `/admin/login` e o link “Dashboard” aparecerá na navbar.
+---
 
-Última atualização: 2025-08-08
+## 🏗️ Arquitetura de Componentes
+
+### 📱 Layout Principal
+- **`App.jsx`**: Roteamento principal e estrutura da aplicação
+- **`Navbar.jsx`**: Navegação responsiva com menu admin dinâmico
+- **`Footer.jsx`**: Rodapé com informações da empresa
+- **`PrivateRoute.jsx`**: Proteção de rotas administrativas
+
+### 📄 Páginas Públicas
+- **`Home.jsx`**: Landing page com hero section e produtos destaque
+- **`Products.jsx`**: Catálogo com filtros, busca e paginação
+- **`ProductDetails.jsx`**: Detalhes do produto e adicionar ao carrinho
+- **`Cart.jsx`**: Carrinho de compras com gestão de itens
+- **`Checkout.jsx`**: Finalização com cashback e cadastro
+
+### 🔐 Páginas Administrativas
+- **`AdminLogin.jsx`**: Autenticação de administradores
+- **`AdminDashboard.jsx`**: Dashboard com métricas e gráficos
+- **`AdminProducts.jsx`**: Gerenciamento CRUD de produtos
+- **`AdminProductNew.jsx`**: Criação de novos produtos
+- **`AdminProductEdit.jsx`**: Edição de produtos existentes
+- **`AdminOrders.jsx`**: Listagem e gestão de pedidos
+- **`AdminOrderDetails.jsx`**: Detalhes e ações de pedidos
+- **`AdminCustomers.jsx`**: Gestão de clientes e pontos
+- **`AdminRelatorios.jsx`**: Relatórios e analytics
+
+### 🔧 Serviços e Integrações
+- **`services/api.js`**: Cliente HTTP configurado (Axios)
+- **`services/productService.js`**: CRUD de produtos e categorias
+- **`services/orderService.js`**: Gestão de pedidos
+- **`services/userService.js`**: Operações de usuários
+- **`services/statsService.js`**: Estatísticas e dashboard
+
+### 🎯 Gerenciamento de Estado
+- **`contexts/AuthContext.jsx`**: Autenticação de administradores
+- **`contexts/CartContext.jsx`**: Estado global do carrinho
+- **`components/LoadingSpinner.jsx`**: Componente de loading
+
+---
+
+## 🛡️ Segurança e Proteção
+
+### Autenticação JWT
+- **Armazenamento**: Token em `localStorage` (`admin_token`)
+- **Proteção de Rotas**: Middleware `PrivateRoute` para área admin
+- **Verificação**: Validação automática de tokens expirados
+- **Logout**: Limpeza segura de sessão
+
+### Validação de Formulários
+- **React Hook Form**: Validação client-side
+- **Feedback Visual**: Mensagens de erro em tempo real
+- **Sanitização**: Prevenção de inputs maliciosos
+
+---
+
+## 📱 Design Responsivo
+
+### Mobile-First
+- **Breakpoints**: Tailwind CSS padrão (sm, md, lg, xl)
+- **Navegação Mobile**: Menu hamburger colapsível
+- **Cards Adaptáveis**: Layout flexível para todos os tamanhos
+- **Touch-Friendly**: Botões e elementos otimizados para toque
+
+### Componentes Responsivos
+- **Grid de Produtos**: Adapta colunas conforme tela
+- **Dashboard**: Cards reorganizam em telas menores
+- **Tabelas**: Scroll horizontal em mobile
+- **Formulários**: Layout vertical otimizado
+
+---
+
+## 🔄 Integração com Backend
+
+### APIs Consumidas
+```javascript
+// Autenticação
+POST /api/auth/login            // Login admin
+GET  /api/auth/verify           // Verificação de token
+
+// Produtos
+GET  /api/produtos              // Listagem com filtros
+GET  /api/produtos/:id          // Produto específico
+POST /api/produtos              // Criar produto
+PUT  /api/produtos/:id          // Atualizar produto
+DELETE /api/produtos/:id        // Deletar produto
+GET  /api/produtos/categorias/distinct // Categorias
+
+// Pedidos
+POST /api/pedidos               // Checkout
+GET  /api/pedidos               // Listagem admin
+GET  /api/pedidos/:id           // Detalhes
+DELETE /api/pedidos/:id         // Exclusão
+
+// Usuários
+GET  /api/usuarios              // Listagem admin
+POST /api/usuarios              // Cadastro
+GET  /api/usuarios/:id/pontos   // Consultar cashback
+
+// Estatísticas
+GET  /api/stats/dashboard       // Métricas
+GET  /api/stats/revenue-monthly // Receita mensal
+```
+
+### Tratamento de Erros
+- **Toast Notifications**: Feedback visual com react-hot-toast
+- **Estados de Loading**: LoadingSpinner durante requisições
+- **Fallbacks**: Tratamento gracioso de falhas
+- **Retry Logic**: Re-tentativas automáticas em alguns casos
+
+---
+
+*Frontend totalmente implementado e funcional*
+*Última atualização: Janeiro 2025*
+*Versão: 2.0 - Sistema Completo*

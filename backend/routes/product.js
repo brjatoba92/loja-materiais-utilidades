@@ -78,6 +78,27 @@ router.get('/', async (req, res) => {
     }
 });
 
+// PRODUTOS COM BAIXO ESTOQUE (apenas admin)
+router.get('/low-stock', authenticateToken, isAdmin, async (req, res) => {
+  try {
+    const threshold = Math.max(0, parseInt(req.query.threshold ?? '10', 10));
+    const limit = Math.max(1, Math.min(100, parseInt(req.query.limit ?? '10', 10)));
+
+    const query = `
+      SELECT id, nome, estoque, categoria
+      FROM produtos
+      WHERE ativo = true AND estoque <= $1
+      ORDER BY estoque ASC, nome ASC
+      LIMIT $2
+    `;
+    const result = await pool.query(query, [threshold, limit]);
+    res.json({ success: true, produtos: result.rows, threshold, count: result.rowCount });
+  } catch (error) {
+    console.error('Erro ao listar produtos com baixo estoque', error);
+    res.status(500).json({ success: false, message: 'Erro interno do servidor' });
+  }
+});
+
 
 // BUSCAR PRODUTO POR ID (público)
 router.get('/:id', async (req, res) => {

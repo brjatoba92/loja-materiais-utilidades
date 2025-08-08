@@ -4,6 +4,73 @@ const { body, validationResult } = require('express-validator');
 
 const router = express.Router();
 
+// LISTAR USUÁRIOS (ADMIN) com paginação e ordenação, incluindo pontos
+router.get('/', async (req, res) => {
+  try {
+    const { page = 1, limit = 20, busca = '' } = req.query;
+    const sortParamRaw = String(req.query.sort || req.query.ordenar || 'pontos_desc').toLowerCase();
+
+    const pageNum = Math.max(1, parseInt(page, 10) || 1);
+    const limitNum = Math.max(1, Math.min(100, parseInt(limit, 10) || 20));
+    const offset = (pageNum - 1) * limitNum;
+
+    // Ordenação suportada
+    let orderBy = 'pontos_cashback DESC, nome ASC';
+    switch (sortParamRaw) {
+      case 'nome_asc':
+        orderBy = 'nome ASC';
+        break;
+      case 'nome_desc':
+        orderBy = 'nome DESC';
+        break;
+      case 'pontos_asc':
+        orderBy = 'pontos_cashback ASC, nome ASC';
+        break;
+      case 'pontos_desc':
+      default:
+        orderBy = 'pontos_cashback DESC, nome ASC';
+    }
+
+    const where = [];
+    const params = [];
+    if (busca) {
+      params.push(`%${busca}%`);
+      params.push(`%${busca}%`);
+      where.push(`(nome ILIKE $${params.length - 1} OR email ILIKE $${params.length})`);
+    }
+
+    const whereSql = where.length ? `WHERE ${where.join(' AND ')}` : '';
+
+    const query = `
+      SELECT id, nome, email, telefone, pontos_cashback, created_at
+      FROM usuarios
+      ${whereSql}
+      ORDER BY ${orderBy}
+      LIMIT $${params.length + 1} OFFSET $${params.length + 2}
+    `;
+    const usersRes = await pool.query(query, [...params, limitNum, offset]);
+
+    const countRes = await pool.query(
+      `SELECT COUNT(*)::INT AS total FROM usuarios ${whereSql}`,
+      params
+    );
+
+    res.json({
+      success: true,
+      usuarios: usersRes.rows,
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total: countRes.rows[0].total,
+        pages: Math.ceil(countRes.rows[0].total / limitNum)
+      }
+    });
+  } catch (error) {
+    console.error('Erro ao listar usuários', error);
+    res.status(500).json({ success: false, message: 'Erro interno do servidor' });
+  }
+});
+
 // CADASTRAR USUARIO
 router.post('/', [
   body('nome').notEmpty().withMessage('Nome é obrigatório'),

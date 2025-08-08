@@ -61,6 +61,16 @@ export const deleteProduct = async (id) => {
     }
 };
 
+export const getLowStockProducts = async (params = {}) => {
+  try {
+    const response = await api.get('/produtos/low-stock', { params });
+    return response.data;
+  } catch (error) {
+    console.error('Erro ao buscar produtos com baixo estoque:', error);
+    throw error;
+  }
+};
+
 // Serviço completo para compatibilidade
 export const productService = {
     // Listar produtos
@@ -91,5 +101,9 @@ export const productService = {
     getDistinctCategories: async () => {
         const res = await api.get('/produtos/categorias/distinct');
         return res.data;
+    },
+    getLowStock: async (params = {}) => {
+      const res = await api.get('/produtos/low-stock', { params });
+      return res.data;
     }
 };
