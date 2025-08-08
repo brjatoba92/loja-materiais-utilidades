@@ -25,6 +25,7 @@ const AdminProducts = () => {
   const [sortBy, setSortBy] = useState('nome');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
   const [selectedProducts, setSelectedProducts] = useState([]);
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
@@ -64,8 +65,11 @@ const AdminProducts = () => {
       };
 
       const response = await getProducts(params);
-      setProducts(response.produtos || response);
-      setTotalPages(response.totalPages || 1);
+      setProducts(response?.produtos || response || []);
+      const pages = response?.pagination?.pages || response?.totalPages || 1;
+      const total = response?.pagination?.total || 0;
+      setTotalPages(pages);
+      setTotalCount(total);
     } catch (error) {
       console.error('Erro ao carregar produtos:', error);
       toast.error('Erro ao carregar produtos');
@@ -308,7 +312,7 @@ const AdminProducts = () => {
                         />
                         <div className="flex items-center">
                           <img
-                            src={product.imagem || '/placeholder-product.jpg'}
+                            src={product.imagem_url || product.imagem || '/placeholder-product.jpg'}
                             alt={product.nome}
                             className="w-10 h-10 rounded-lg object-cover mr-3"
                           />
@@ -397,7 +401,7 @@ const AdminProducts = () => {
             <div className="px-6 py-4 border-t border-gray-200">
               <div className="flex items-center justify-between">
                 <div className="text-sm text-gray-700">
-                  Mostrando {((currentPage - 1) * 20) + 1} a {Math.min(currentPage * 20, products.length)} de {products.length} produtos
+                  Mostrando {((currentPage - 1) * 20) + 1} a {Math.min(currentPage * 20, totalCount)} de {totalCount} produtos
                 </div>
                 <div className="flex items-center space-x-2">
                   <button

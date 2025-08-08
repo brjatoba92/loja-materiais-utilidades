@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Menu, X, Home, Package, User, LogOut } from 'lucide-react';
+import { ShoppingCart, Menu, X, Home, Package, User, LogOut, BarChart3 } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -73,6 +73,14 @@ const Navbar = () => {
                         {/* Admin/Logout */}
                         {admin ? (
                             <div className="flex items-center space-x-2">
+                                <Link
+                                    to='/admin'
+                                    className='flex items-center space-x-1 text-sm font-medium text-primary-600 hover:text-primary-700 transition-colors mr-2'
+                                    title='Ir para o Dashboard'
+                                >
+                                    <BarChart3 className='w-4 h-4' />
+                                    <span>Dashboard</span>
+                                </Link>
                                 <span className="text-sm text-gray-600">
                                     Olá, {admin.nome || 'Administrador'}
                                 </span>
@@ -123,6 +131,17 @@ const Navbar = () => {
                                         <span>{label}</span>
                                     </Link>
                                 ))}
+
+                                {admin && (
+                                    <Link
+                                        to='/admin'
+                                        onClick={() => setIsOpen(false)}
+                                        className='flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium text-primary-600 hover:text-primary-700'
+                                    >
+                                        <BarChart3 className='w-5 h-5' />
+                                        <span>Dashboard</span>
+                                    </Link>
+                                )}
 
                                 <Link
                                     to='/carrinho'

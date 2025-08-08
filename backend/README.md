@@ -340,3 +340,44 @@ Desktop:   1025px+
 *Documentação atualizada em: Julho 2025*
 *Versão: 1.0*
 *Autor: Sistema de Desenvolvimento*
+
+---
+
+## 🔄 Atualizações Recentes (2025-08)
+
+### Backend
+- Novo: `GET /api/stats/dashboard` suporta filtros `startDate` e `endDate` para calcular:
+  - `totalOrders`, `totalRevenue`, `totalCustomers` considerando apenas pedidos com status diferente de `cancelado`.
+- Novo: `GET /api/stats/revenue-monthly` traz a receita mensal dos últimos 12 meses.
+- Novo: `DELETE /api/pedidos/:id` (admin) para exclusão de pedidos.
+- Ajuste: Rotas de produtos corrigidas para tabela `produtos` (plural) e `UPDATE` com `updated_at`.
+- Novo: `GET /api/produtos/categorias/distinct` para listar categorias existentes (para o formulário de novo produto).
+
+### Frontend (Admin)
+- Dashboard
+  - Cards de Pedidos, Receita e Clientes agora mostram variação percentual real vs. período anterior (30/90 dias), com cores e setas.
+  - Tooltip com valores absolutos (período atual e anterior).
+  - Gráfico de Receita Mensal consumindo `stats/revenue-monthly` com valores rotulados.
+  - Seletor de período (Tudo, 30d, 90d).
+- Pedidos
+  - Listagem paginada com filtro por status.
+  - Detalhe do pedido com itens e resumo.
+  - Exclusão de pedidos (lista e detalhe) com confirmação.
+- Produtos
+  - Gerenciar Produtos com paginação correta (mostra total real e páginas).
+  - “Novo Produto”: select com categorias existentes + opção de cadastrar nova categoria.
+  - “Editar Produto”: formulário com dados preenchidos.
+- Navbar
+  - Link de acesso rápido ao Dashboard quando admin estiver logado (desktop e mobile).
+
+### Endpoints (Resumo)
+```
+GET  /api/stats/dashboard              # estatísticas com período opcional (?startDate=&endDate=)
+GET  /api/stats/revenue-monthly        # receita mensal (12 meses)
+DELETE /api/pedidos/:id                # deletar pedido (admin)
+GET  /api/produtos/categorias/distinct # categorias distintas
+```
+
+---
+
+Última atualização: 2025-08-08

@@ -243,3 +243,14 @@ router.delete('/:id', authenticateToken, isAdmin, async (req, res) => {
 });
 
 module.exports = router;
+
+// LISTAR CATEGORIAS (distintas)
+router.get('/categorias/distinct', async (req, res) => {
+  try {
+    const result = await pool.query("SELECT DISTINCT categoria FROM produtos WHERE categoria IS NOT NULL AND categoria <> '' ORDER BY categoria ASC");
+    res.json({ success: true, categorias: result.rows.map(r => r.categoria) });
+  } catch (error) {
+    console.error('Erro ao listar categorias', error);
+    res.status(500).json({ success: false, message: 'Erro interno do servidor' });
+  }
+});
