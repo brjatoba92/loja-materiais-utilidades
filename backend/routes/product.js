@@ -10,7 +10,7 @@ const router = express.Router();
 router.get('/', async (req, res) => {
     try {
         const { categoria, busca, page = 1, limit = 12 } = req.query;
-        let query = 'SELECT * FROM produto WHERE ativo = true';
+        let query = 'SELECT * FROM produtos WHERE ativo = true';
         let params = [];
         let paramCount = 0;
 
@@ -39,7 +39,7 @@ router.get('/', async (req, res) => {
         const result = await pool.query(query, params);
 
         // Contar total
-        let countQuery = 'SELECT COUNT(*) FROM produto WHERE ativo = true';
+        let countQuery = 'SELECT COUNT(*) FROM produtos WHERE ativo = true';
         let countParams = [];
         let countParamCount = 0;
 
@@ -84,7 +84,7 @@ router.get('/:id', async (req, res) => {
     try {
         const { id } = req.params;
 
-        const query = 'SELECT * FROM produto WHERE id = $1 AND ativo = true';
+        const query = 'SELECT * FROM produtos WHERE id = $1 AND ativo = true';
         const result = await pool.query(query, [id]);
 
         if (result.rows.length === 0) {
@@ -183,7 +183,7 @@ router.put('/:id', [
           categoria = COALESCE($4, categoria),
           estoque = COALESCE($5, estoque),
           imagem_url = COALESCE($6, imagem_url),
-          ativo = COALESCE($7, ativo)
+          ativo = COALESCE($7, ativo),
           updated_at = NOW()
       WHERE id = $8
       RETURNING *
