@@ -49,6 +49,23 @@ const Products = () => {
     fetchProducts();
   }, [debouncedSearchTerm, selectedCategory, priceRange, sortBy, currentPage]);
 
+  // Sincroniza estados quando a URL (query string) muda
+  useEffect(() => {
+    const buscaParam = searchParams.get('busca') || '';
+    const categoriaParam = searchParams.get('categoria') || '';
+    const precoMinParam = searchParams.get('preco_min') || '';
+    const precoMaxParam = searchParams.get('preco_max') || '';
+    const ordenarParam = searchParams.get('ordenar') || 'nome';
+    const paginaParamRaw = searchParams.get('pagina') || searchParams.get('page') || '1';
+    const paginaParam = parseInt(paginaParamRaw, 10);
+
+    setSearchTerm(buscaParam);
+    setSelectedCategory(categoriaParam);
+    setPriceRange({ min: precoMinParam, max: precoMaxParam });
+    setSortBy(ordenarParam);
+    setCurrentPage(Number.isNaN(paginaParam) ? 1 : paginaParam);
+  }, [searchParams]);
+
   const fetchProducts = async () => {
     setLoading(true);
     try {
@@ -63,8 +80,9 @@ const Products = () => {
       };
 
       const response = await getProducts(params);
-      setProducts(response.produtos || response);
-      setTotalPages(response.totalPages || 1);
+      setProducts(response?.produtos || response || []);
+      const pages = response?.pagination?.pages || response?.totalPages || 1;
+      setTotalPages(pages);
     } catch (error) {
       console.error('Erro ao carregar produtos:', error);
     } finally {
@@ -103,7 +121,7 @@ const Products = () => {
     <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
       <div className="relative">
         <img
-          src={product.imagem || '/placeholder-product.jpg'}
+          src={product.imagem_url || product.imagem || '/placeholder-product.jpg'}
           alt={product.nome}
           className="w-full h-48 object-cover rounded-t-lg"
         />
@@ -145,13 +163,13 @@ const Products = () => {
         
         <div className="flex items-center justify-between mb-3">
           <div>
-            {product.preco_original > product.preco && (
+            {Number(product.preco_original) > Number(product.preco) && (
               <span className="text-sm text-gray-500 line-through">
-                R$ {product.preco_original.toFixed(2)}
+                R$ {(Number(product.preco_original) || 0).toFixed(2)}
               </span>
             )}
             <span className="text-lg font-bold text-primary-600">
-              R$ {product.preco.toFixed(2)}
+              R$ {(Number(product.preco) || 0).toFixed(2)}
             </span>
           </div>
           <span className="text-sm text-gray-600">

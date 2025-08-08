@@ -90,9 +90,9 @@ const Home = () => {
           <h2 className="text-3xl font-bold text-center mb-12">Categorias</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {categories.map((category, index) => (
-              <Link
-                key={index}
-                to={`/produtos?categoria=${category.name.toLowerCase()}`}
+                <Link
+                  key={index}
+                  to={`/produtos?categoria=${encodeURIComponent(category.name)}`}
                 className={`${category.color} p-6 rounded-lg text-center hover:shadow-lg transition-shadow`}
               >
                 <category.icon className="w-12 h-12 mx-auto mb-4 text-gray-700" />
