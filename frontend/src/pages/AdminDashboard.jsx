@@ -16,6 +16,8 @@ import {
   Activity
 } from 'lucide-react';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { orderService } from '../services/orderService';
+import { statsService } from '../services/statsService';
 
 const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
@@ -26,95 +28,110 @@ const AdminDashboard = () => {
     totalCustomers: 0,
     recentOrders: [],
     topProducts: [],
-    revenueChart: []
+    revenueChart: [],
+    deltas: {
+      ordersPct: null,
+      revenuePct: null,
+      customersPct: null,
+    },
+    absolutes: {
+      ordersNow: 0,
+      ordersPrev: null,
+      revenueNow: 0,
+      revenuePrev: null,
+      customersNow: 0,
+      customersPrev: null,
+    }
   });
+  const [period, setPeriod] = useState(''); // '', '30d', '90d'
 
   useEffect(() => {
     fetchDashboardData();
-  }, []);
+  }, [period]);
 
   const fetchDashboardData = async () => {
     setLoading(true);
     try {
-      // Simular dados do dashboard
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      setStats({
-        totalProducts: 156,
-        totalOrders: 89,
-        totalRevenue: 15420.50,
-        totalCustomers: 234,
-        recentOrders: [
-          {
-            id: 1,
-            customer: 'João Silva',
-            total: 299.90,
-            status: 'Entregue',
-            date: '2024-01-15'
-          },
-          {
-            id: 2,
-            customer: 'Maria Santos',
-            total: 159.80,
-            status: 'Em Transporte',
-            date: '2024-01-14'
-          },
-          {
-            id: 3,
-            customer: 'Pedro Costa',
-            total: 89.90,
-            status: 'Processando',
-            date: '2024-01-14'
-          },
-          {
-            id: 4,
-            customer: 'Ana Oliveira',
-            total: 199.90,
-            status: 'Entregue',
-            date: '2024-01-13'
-          }
-        ],
-        topProducts: [
-          {
-            id: 1,
-            name: 'Panela de Pressão',
-            sales: 45,
-            revenue: 2245.50
-          },
-          {
-            id: 2,
-            name: 'Jogo de Talheres',
-            sales: 38,
-            revenue: 1890.00
-          },
-          {
-            id: 3,
-            name: 'Liquidificador',
-            sales: 32,
-            revenue: 1596.00
-          },
-          {
-            id: 4,
-            name: 'Conjunto de Panelas',
-            sales: 28,
-            revenue: 1398.00
-          }
-        ],
-        revenueChart: [
-          { month: 'Jan', revenue: 12000 },
-          { month: 'Fev', revenue: 15000 },
-          { month: 'Mar', revenue: 18000 },
-          { month: 'Abr', revenue: 14000 },
-          { month: 'Mai', revenue: 16000 },
-          { month: 'Jun', revenue: 19000 }
-        ]
-      });
+      // Monta filtros por período para stats (apenas stats usa período)
+      const now = new Date();
+      let currentParams = {};
+      let previousParams = null;
+      if (period === '30d' || period === '90d') {
+        const days = period === '30d' ? 30 : 90;
+        const end = new Date(now);
+        const start = new Date(now);
+        start.setDate(end.getDate() - days);
+        currentParams = { startDate: start.toISOString(), endDate: end.toISOString() };
+
+        const prevEnd = new Date(start);
+        const prevStart = new Date(start);
+        prevStart.setDate(prevEnd.getDate() - days);
+        previousParams = { startDate: prevStart.toISOString(), endDate: prevEnd.toISOString() };
+      }
+
+      const [ordersRes, statsRes, revenueRes, prevStatsRes] = await Promise.all([
+        orderService.getOrders({ page: 1, limit: 5 }),
+        statsService.getDashboardStats(currentParams),
+        statsService.getMonthlyRevenue(),
+        previousParams ? statsService.getDashboardStats(previousParams) : Promise.resolve({ data: null })
+      ]);
+      const pedidos = ordersRes?.pedidos || [];
+      const s = statsRes?.data || {};
+      const ps = prevStatsRes?.data || null;
+
+      const computePct = (curr, prev) => {
+        if (prev == null) return null; // sem período selecionado
+        const c = Number(curr) || 0;
+        const p = Number(prev) || 0;
+        if (p === 0) return c === 0 ? 0 : 100;
+        return ((c - p) / p) * 100;
+      };
+
+      setStats((prev) => ({
+        ...prev,
+        totalProducts: s.totalProducts ?? prev.totalProducts,
+        totalCustomers: s.totalCustomers ?? prev.totalCustomers,
+        totalRevenue: Number(s.totalRevenue) || prev.totalRevenue,
+        totalOrders: (s.totalOrders ?? ordersRes?.pagination?.total ?? pedidos.length),
+        recentOrders: pedidos.map((p) => ({
+          id: p.id,
+          customer: p.usuario_nome || p.usuario_email || `Usuário #${p.usuario_id}`,
+          total: Number(p.total) || 0,
+          status: p.status || 'confirmado',
+          date: new Date(p.created_at).toISOString().slice(0, 10),
+        })),
+        revenueChart: (revenueRes?.data || []).map((r) => ({
+          month: r.month_label,
+          revenue: Number(r.revenue) || 0,
+        })),
+        deltas: {
+          ordersPct: computePct(s.totalOrders, ps?.totalOrders),
+          revenuePct: computePct(s.totalRevenue, ps?.totalRevenue),
+          customersPct: computePct(s.totalCustomers, ps?.totalCustomers),
+        },
+        absolutes: {
+          ordersNow: s.totalOrders ?? 0,
+          ordersPrev: ps?.totalOrders ?? null,
+          revenueNow: Number(s.totalRevenue) || 0,
+          revenuePrev: ps ? (Number(ps.totalRevenue) || 0) : null,
+          customersNow: s.totalCustomers ?? 0,
+          customersPrev: ps?.totalCustomers ?? null,
+        }
+      }));
     } catch (error) {
       console.error('Erro ao carregar dados do dashboard:', error);
     } finally {
       setLoading(false);
     }
   };
+
+  // Auto-refresh: atualizar pedidos recentes a cada 15s
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchDashboardData();
+    }, 15000);
+    return () => clearInterval(interval);
+  }, []);
 
   const formatCurrency = (value) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -138,6 +155,8 @@ const AdminDashboard = () => {
     }
   };
 
+  const maxRevenue = Math.max(1, ...stats.revenueChart.map((i) => i.revenue || 0));
+
   if (loading) {
     return <LoadingSpinner />;
   }
@@ -153,6 +172,19 @@ const AdminDashboard = () => {
           </p>
         </div>
 
+        {/* Filtro de Período e Cards de Estatísticas */}
+        <div className="flex justify-end mb-2">
+          <select
+            value={period}
+            onChange={(e) => setPeriod(e.target.value)}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+            title="Período para clientes/receita/pedidos"
+          >
+            <option value="">Tudo</option>
+            <option value="30d">Últimos 30 dias</option>
+            <option value="90d">Últimos 90 dias</option>
+          </select>
+        </div>
         {/* Cards de Estatísticas */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div className="bg-white rounded-lg shadow-md p-6">
@@ -182,11 +214,19 @@ const AdminDashboard = () => {
                 <p className="text-2xl font-bold text-gray-900">{stats.totalOrders}</p>
               </div>
             </div>
-            <div className="mt-4 flex items-center text-sm">
-              <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
-              <span className="text-green-600">+8%</span>
-              <span className="text-gray-500 ml-1">vs mês passado</span>
-            </div>
+            {stats.deltas.ordersPct !== null && (
+              <div className="mt-4 flex items-center text-sm" title={`Atual: ${stats.absolutes.ordersNow} • Anterior: ${stats.absolutes.ordersPrev ?? '-'} `}>
+                {stats.deltas.ordersPct >= 0 ? (
+                  <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
+                ) : (
+                  <TrendingDown className="w-4 h-4 text-red-500 mr-1" />
+                )}
+                <span className={stats.deltas.ordersPct >= 0 ? 'text-green-600' : 'text-red-600'}>
+                  {`${Math.abs(stats.deltas.ordersPct).toFixed(1)}%`}
+                </span>
+                <span className="text-gray-500 ml-1">vs período anterior</span>
+              </div>
+            )}
           </div>
 
           <div className="bg-white rounded-lg shadow-md p-6">
@@ -199,11 +239,19 @@ const AdminDashboard = () => {
                 <p className="text-2xl font-bold text-gray-900">{formatCurrency(stats.totalRevenue)}</p>
               </div>
             </div>
-            <div className="mt-4 flex items-center text-sm">
-              <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
-              <span className="text-green-600">+15%</span>
-              <span className="text-gray-500 ml-1">vs mês passado</span>
-            </div>
+            {stats.deltas.revenuePct !== null && (
+              <div className="mt-4 flex items-center text-sm" title={`Atual: ${formatCurrency(stats.absolutes.revenueNow)} • Anterior: ${stats.absolutes.revenuePrev !== null ? formatCurrency(stats.absolutes.revenuePrev) : '-'}`}>
+                {stats.deltas.revenuePct >= 0 ? (
+                  <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
+                ) : (
+                  <TrendingDown className="w-4 h-4 text-red-500 mr-1" />
+                )}
+                <span className={stats.deltas.revenuePct >= 0 ? 'text-green-600' : 'text-red-600'}>
+                  {`${Math.abs(stats.deltas.revenuePct).toFixed(1)}%`}
+                </span>
+                <span className="text-gray-500 ml-1">vs período anterior</span>
+              </div>
+            )}
           </div>
 
           <div className="bg-white rounded-lg shadow-md p-6">
@@ -216,11 +264,19 @@ const AdminDashboard = () => {
                 <p className="text-2xl font-bold text-gray-900">{stats.totalCustomers}</p>
               </div>
             </div>
-            <div className="mt-4 flex items-center text-sm">
-              <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
-              <span className="text-green-600">+5%</span>
-              <span className="text-gray-500 ml-1">vs mês passado</span>
-            </div>
+            {stats.deltas.customersPct !== null && (
+              <div className="mt-4 flex items-center text-sm" title={`Atual: ${stats.absolutes.customersNow} • Anterior: ${stats.absolutes.customersPrev ?? '-'}`}>
+                {stats.deltas.customersPct >= 0 ? (
+                  <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
+                ) : (
+                  <TrendingDown className="w-4 h-4 text-red-500 mr-1" />
+                )}
+                <span className={stats.deltas.customersPct >= 0 ? 'text-green-600' : 'text-red-600'}>
+                  {`${Math.abs(stats.deltas.customersPct).toFixed(1)}%`}
+                </span>
+                <span className="text-gray-500 ml-1">vs período anterior</span>
+              </div>
+            )}
           </div>
         </div>
 
@@ -317,13 +373,12 @@ const AdminDashboard = () => {
             <div className="p-6">
               <div className="flex items-end justify-between h-64">
                 {stats.revenueChart.map((item, index) => (
-                  <div key={index} className="flex flex-col items-center">
-                    <div 
-                      className="w-8 bg-primary-600 rounded-t"
-                      style={{ 
-                        height: `${(item.revenue / 20000) * 200}px` 
-                      }}
-                    ></div>
+                  <div key={index} className="flex flex-col items-center" title={formatCurrency(item.revenue)}>
+                    <span className="text-xs text-gray-700 mb-1">{formatCurrency(item.revenue)}</span>
+                    <div
+                      className="w-8 bg-gradient-to-t from-primary-500 to-primary-600 rounded-t shadow-sm"
+                      style={{ height: `${Math.max(4, Math.round((item.revenue / maxRevenue) * 200))}px` }}
+                    />
                     <span className="text-xs text-gray-600 mt-2">{item.month}</span>
                   </div>
                 ))}

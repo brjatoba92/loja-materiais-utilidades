@@ -53,46 +53,36 @@ const Checkout = () => {
     setIsProcessing(true);
     
     try {
-      // Simular processamento do pedido
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Aqui você faria a chamada para a API para criar o pedido
-      const orderData = {
-        customer: {
-          name: data.name,
+      // Montar payload para API
+      const itensPayload = items.map((it) => ({
+        produto_id: it.id,
+        quantidade: it.quantidade,
+      }));
+
+      const payload = {
+        itens: itensPayload,
+        pontos_utilizados: 0,
+        cliente: {
+          nome: data.name,
           email: data.email,
-          phone: data.phone,
-          cpf: data.cpf
+          telefone: data.phone,
         },
-        address: {
-          street: data.street,
-          number: data.number,
-          complement: data.complement,
-          neighborhood: data.neighborhood,
-          city: data.city,
-          state: data.state,
-          zipCode: data.zipCode
-        },
-        payment: {
-          method: paymentMethod,
-          cardNumber: data.cardNumber,
-          cardName: data.cardName,
-          cardExpiry: data.cardExpiry,
-          cardCvv: data.cardCvv
-        },
-        items: items,
-        total: calculateTotal(),
-        subtotal: calculateSubtotal(),
-        shipping: calculateShipping(),
-        discount: calculateDiscount()
       };
 
-      console.log('Dados do pedido:', orderData);
-      
-      // Limpar carrinho e redirecionar
+      const res = await fetch('http://localhost:5000/api/pedidos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || 'Falha ao criar pedido');
+      }
+
       clearCart();
       toast.success('Pedido realizado com sucesso!');
-      navigate('/');
+      navigate('/admin');
       
     } catch (error) {
       console.error('Erro ao processar pedido:', error);

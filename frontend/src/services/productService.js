@@ -21,6 +21,16 @@ export const getProductById = async (id) => {
     }
 };
 
+export const getDistinctCategories = async () => {
+  try {
+    const response = await api.get('/produtos/categorias/distinct');
+    return response.data;
+  } catch (error) {
+    console.error('Erro ao buscar categorias:', error);
+    throw error;
+  }
+};
+
 export const createProduct = async (product) => {
     try {
         const response = await api.post('/produtos', product);
@@ -77,5 +87,9 @@ export const productService = {
     delete: async (id) => {
         const response = await api.delete(`/produtos/${id}`);
         return response.data;
+    },
+    getDistinctCategories: async () => {
+        const res = await api.get('/produtos/categorias/distinct');
+        return res.data;
     }
 };

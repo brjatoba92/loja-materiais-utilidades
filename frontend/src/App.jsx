@@ -10,6 +10,10 @@ import Checkout from "./pages/Checkout";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminProducts from "./pages/AdminProducts";
+import AdminOrders from "./pages/AdminOrders";
+import AdminOrderDetails from "./pages/AdminOrderDetails";
+import AdminProductNew from "./pages/AdminProductNew";
+import AdminProductEdit from "./pages/AdminProductEdit";
 import PrivateRoute from "./components/PrivateRoute";
 
 function App() {
@@ -36,6 +40,26 @@ function App() {
           <Route path="/admin/produtos" element={
             <PrivateRoute>
               <AdminProducts />
+            </PrivateRoute>
+          } />
+          <Route path="/admin/produtos/novo" element={
+            <PrivateRoute>
+              <AdminProductNew />
+            </PrivateRoute>
+          } />
+          <Route path="/admin/produtos/editar/:id" element={
+            <PrivateRoute>
+              <AdminProductEdit />
+            </PrivateRoute>
+          } />
+          <Route path="/admin/pedidos" element={
+            <PrivateRoute>
+              <AdminOrders />
+            </PrivateRoute>
+          } />
+          <Route path="/admin/pedidos/:id" element={
+            <PrivateRoute>
+              <AdminOrderDetails />
             </PrivateRoute>
           } />
         </Routes>

@@ -22,17 +22,18 @@ const ProductDetails = () => {
   const fetchProduct = async () => {
     setLoading(true);
     try {
-      const productData = await getProductById(id);
+      const productResponse = await getProductById(id);
+      const productData = productResponse?.produto || productResponse || null;
       setProduct(productData);
       
       // Buscar produtos relacionados
-      if (productData.categoria) {
+      if (productData?.categoria) {
         const related = await getProducts({ 
           categoria: productData.categoria, 
           limit: 4,
           exclude: id 
         });
-        setRelatedProducts(related.produtos || related);
+        setRelatedProducts(related?.produtos || related || []);
       }
     } catch (error) {
       console.error('Erro ao carregar produto:', error);
@@ -92,7 +93,9 @@ const ProductDetails = () => {
     );
   }
 
-  const images = product.imagens || [product.imagem].filter(Boolean);
+  const images = (product.imagens && product.imagens.length > 0)
+    ? product.imagens
+    : [product.imagem_url || product.imagem].filter(Boolean);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -166,13 +169,13 @@ const ProductDetails = () => {
 
             {/* Preço */}
             <div className="mb-6">
-              {product.preco_original > product.preco && (
+              {Number(product.preco_original) > Number(product.preco) && (
                 <div className="text-sm text-gray-500 line-through mb-1">
-                  {formatPrice(product.preco_original)}
+                  {formatPrice(Number(product.preco_original))}
                 </div>
               )}
               <div className="text-3xl font-bold text-primary-600">
-                {formatPrice(product.preco)}
+                {formatPrice(Number(product.preco))}
               </div>
               {product.desconto > 0 && (
                 <span className="inline-block bg-red-100 text-red-800 text-sm font-semibold px-2 py-1 rounded ml-2">
@@ -184,9 +187,9 @@ const ProductDetails = () => {
             {/* Estoque */}
             <div className="mb-6">
               <span className={`text-sm font-medium ${
-                product.estoque > 0 ? 'text-green-600' : 'text-red-600'
+                Number(product.estoque) > 0 ? 'text-green-600' : 'text-red-600'
               }`}>
-                {product.estoque > 0 ? `${product.estoque} unidades em estoque` : 'Fora de estoque'}
+                {Number(product.estoque) > 0 ? `${product.estoque} unidades em estoque` : 'Fora de estoque'}
               </span>
             </div>
 

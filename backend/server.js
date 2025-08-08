@@ -38,6 +38,7 @@ const authRoutes = require('./routes/auth');
 const produtoRoutes = require('./routes/product');
 const usuarioRoutes = require('./routes/usuarios');
 const pedidoRoutes = require('./routes/pedidos');
+const statsRoutes = require('./routes/stats');
 
 
 // ============================================
@@ -47,6 +48,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/produtos', produtoRoutes);
 app.use('/api/usuarios', usuarioRoutes);
 app.use('/api/pedidos', pedidoRoutes);
+app.use('/api/stats', statsRoutes);
 
 // Rota de teste
 app.get('/api/health', (req, res) => {

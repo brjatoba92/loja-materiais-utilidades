@@ -1,13 +1,17 @@
 const express = require('express');
 const pool = require('../config/database');
-const { body, validationResult } = require('express-validator');
+const { body, validationResult, oneOf } = require('express-validator');
 const { Client } = require('pg');
+const { authenticateToken, isAdmin } = require('../middleware/auth');
 
 const router = express.Router();
 
-// CRIAR PEDIDO (cHECKOUT)
+// CRIAR PEDIDO (CHECKOUT)
 router.post('/', [
-    body('usuario_id').isInt().withMessage('ID de usuário inválido'),
+    oneOf([
+      body('usuario_id').isInt().withMessage('ID de usuário inválido'),
+      body('cliente.email').isEmail().withMessage('Email do cliente é obrigatório quando não houver usuario_id')
+    ], 'Informe usuario_id ou os dados do cliente'),
     body('itens').isArray({ min: 1 }).withMessage('Pelo menos um item é obrigatorio'),
     body('itens.*.produto_id').isInt().withMessage('ID de produto inválido'),
     body('itens.*.quantidade').isInt({ min: 1 }).withMessage('Quantidade deve ser maior que 0'),
@@ -24,11 +28,31 @@ router.post('/', [
                 errors: errors.array() 
             });
         }
-        const { usuario_id, itens, pontos_utilizados = 0} = req.body;
+        const { usuario_id: usuarioIdBody, itens, pontos_utilizados = 0, cliente } = req.body;
 
-        // Verificar se usuario existe e tem pontos suficinetes
+        // Resolver usuario_id: usar o informado ou criar/buscar pelo email do cliente
+        let usuarioId = usuarioIdBody;
+        if (!usuarioId) {
+            const nomeCliente = cliente?.nome || 'Cliente';
+            const emailCliente = cliente?.email;
+            const telefoneCliente = cliente?.telefone || null;
+
+            // Tentar encontrar usuário pelo email
+            const buscaUsuario = await client.query('SELECT id, pontos_cashback FROM usuarios WHERE email = $1', [emailCliente]);
+            if (buscaUsuario.rows.length > 0) {
+                usuarioId = buscaUsuario.rows[0].id;
+            } else {
+                const criaUsuario = await client.query(
+                    'INSERT INTO usuarios (nome, email, telefone) VALUES ($1, $2, $3) RETURNING id, pontos_cashback',
+                    [nomeCliente, emailCliente, telefoneCliente]
+                );
+                usuarioId = criaUsuario.rows[0].id;
+            }
+        }
+
+        // Verificar se usuario existe e tem pontos suficientes
         const usuarioQuery = 'SELECT pontos_cashback FROM usuarios WHERE id = $1';
-        const usuarioResult = await client.query(usuarioQuery, [usuario_id]);
+        const usuarioResult = await client.query(usuarioQuery, [usuarioId]);
 
         if (usuarioResult.rows.length === 0) {
             await client.query('ROLLBACK');
@@ -99,8 +123,8 @@ router.post('/', [
             VALUES ($1, $2, $3, $4, 'confirmado')
             RETURNING *
         `;
-        const pedidoResult = await client.query(pedidoQuery, [
-            usuario_id, totalFinal, pontos_utilizados, pontosGerados
+            const pedidoResult = await client.query(pedidoQuery, [
+            usuarioId, totalFinal, pontos_utilizados, pontosGerados
         ]);
 
         const pedido = pedidoResult.rows[0];
@@ -129,7 +153,7 @@ router.post('/', [
         // Atualizar pontos do usuário
         const novosPontos = pontosDisponiveis - pontos_utilizados + pontosGerados;
         const pontosQuery = 'UPDATE usuarios SET pontos_cashback = $1 WHERE id = $2';
-        await client.query(pontosQuery, [novosPontos, usuario_id]);
+        await client.query(pontosQuery, [novosPontos, usuarioId]);
 
         await client.query('COMMIT');
         
@@ -257,3 +281,17 @@ router.get('/', async (req, res) => {
 });
 
 module.exports = router;
+// DELETAR PEDIDO (apenas admin)
+router.delete('/:id', authenticateToken, isAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query('DELETE FROM pedidos WHERE id = $1 RETURNING id', [id]);
+    if (result.rowCount === 0) {
+      return res.status(404).json({ success: false, message: 'Pedido nao encontrado' });
+    }
+    return res.json({ success: true, message: 'Pedido deletado com sucesso' });
+  } catch (error) {
+    console.error('Erro ao deletar pedido', error);
+    res.status(500).json({ success: false, message: 'Erro interno do servidor' });
+  }
+});
