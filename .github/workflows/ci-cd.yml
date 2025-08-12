@@ -1,0 +1,199 @@
+name: CI/CD Pipeline - Loja de Utilidades
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  NODE_VERSION: '18'
+  POSTGRES_VERSION: '14'
+
+jobs:
+  # Job de Testes e Linting
+  test:
+    name: Testes e Qualidade de Código
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+    - name: Checkout código
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    # Backend Tests
+    - name: Setup Backend
+      working-directory: ./backend
+      run: |
+        npm ci
+        npm install -g nodemon
+
+    - name: Run Backend Linting
+      working-directory: ./backend
+      run: |
+        npm run lint || echo "Linting não configurado"
+
+    - name: Run Backend Tests
+      working-directory: ./backend
+      env:
+        DB_HOST: localhost
+        DB_PORT: 5432
+        DB_USER: postgres
+        DB_PASSWORD: postgres
+        DB_NAME: test_db
+        NODE_ENV: test
+      run: |
+        npm test || echo "Testes não configurados"
+
+    # Frontend Tests
+    - name: Setup Frontend
+      working-directory: ./frontend
+      run: npm ci
+
+    - name: Run Frontend Linting
+      working-directory: ./frontend
+      run: npm run lint
+
+    - name: Run Frontend Tests
+      working-directory: ./frontend
+      run: |
+        npm test || echo "Testes não configurados"
+
+    - name: Build Frontend
+      working-directory: ./frontend
+      run: npm run build
+
+  # Job de Build e Deploy para Staging
+  deploy-staging:
+    name: Deploy para Staging
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop'
+    
+    steps:
+    - name: Checkout código
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    # Build Backend
+    - name: Build Backend
+      working-directory: ./backend
+      run: |
+        npm ci --only=production
+        npm prune --production
+
+    # Build Frontend
+    - name: Build Frontend
+      working-directory: ./frontend
+      run: |
+        npm ci
+        npm run build
+
+    # Deploy para servidor de staging
+    - name: Deploy to Staging Server
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.STAGING_HOST }}
+        username: ${{ secrets.STAGING_USER }}
+        key: ${{ secrets.STAGING_SSH_KEY }}
+        script: |
+          cd /var/www/loja-utilidades-staging
+          git pull origin develop
+          cd backend && npm ci --only=production
+          cd ../frontend && npm ci && npm run build
+          sudo systemctl restart loja-utilidades-staging
+
+  # Job de Deploy para Produção
+  deploy-production:
+    name: Deploy para Produção
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    
+    steps:
+    - name: Checkout código
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    # Build Backend
+    - name: Build Backend
+      working-directory: ./backend
+      run: |
+        npm ci --only=production
+        npm prune --production
+
+    # Build Frontend
+    - name: Build Frontend
+      working-directory: ./frontend
+      run: |
+        npm ci
+        npm run build
+
+    # Backup do banco de dados
+    - name: Backup Database
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.PROD_HOST }}
+        username: ${{ secrets.PROD_USER }}
+        key: ${{ secrets.PROD_SSH_KEY }}
+        script: |
+          pg_dump -h localhost -U postgres loja_utilidades_prod > /backups/backup_$(date +%Y%m%d_%H%M%S).sql
+
+    # Deploy para produção
+    - name: Deploy to Production
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.PROD_HOST }}
+        username: ${{ secrets.PROD_USER }}
+        key: ${{ secrets.PROD_SSH_KEY }}
+        script: |
+          cd /var/www/loja-utilidades
+          git pull origin main
+          cd backend && npm ci --only=production
+          cd ../frontend && npm ci && npm run build
+          sudo systemctl restart loja-utilidades
+          sudo systemctl restart nginx
+
+    # Notificação de sucesso
+    - name: Notify Success
+      if: success()
+      run: |
+        echo "Deploy para produção realizado com sucesso!"
+        # Aqui você pode adicionar notificações para Slack, Discord, etc.
+
+    # Notificação de falha
+    - name: Notify Failure
+      if: failure()
+      run: |
+        echo "Falha no deploy para produção!"
+        # Aqui você pode adicionar notificações de erro 

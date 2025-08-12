@@ -4,166 +4,322 @@ Sistema de e-commerce totalmente funcional com painel administrativo avançado, 
 
 ## 🎯 **Status do Projeto: SISTEMA COMPLETO E FUNCIONAL**
 
-✅ **Backend API**: 20+ endpoints implementados
+✅ **Backend API**: 20+ endpoints implementados  
 ✅ **Frontend SPA**: Interface completa e responsiva  
-✅ **Dashboard Admin**: Métricas em tempo real + gráficos
-✅ **E-commerce**: Catálogo + carrinho + checkout + cashback
-✅ **Banco de Dados**: PostgreSQL com 5 tabelas relacionadas
-✅ **Segurança**: JWT + validações + rate limiting
+✅ **Dashboard Admin**: Métricas em tempo real + gráficos  
+✅ **E-commerce**: Catálogo + carrinho + checkout + cashback  
+✅ **Banco de Dados**: PostgreSQL com 5 tabelas relacionadas  
+✅ **Segurança**: JWT + validações + rate limiting  
+✅ **CI/CD**: Pipeline automatizado com GitHub Actions  
+✅ **Deploy**: Scripts completos para produção  
 
-## 📂 Estrutura do Projeto
+## 📋 Índice
 
-```
-loja-materiais-utilidades/
-├─ backend/              # API RESTful completa
-│  ├─ routes/           # 5 módulos de rotas (auth, produtos, pedidos, usuários, stats)
-│  ├─ middleware/       # Autenticação JWT + validações
-│  ├─ database/         # Schema PostgreSQL + seeds
-│  ├─ scripts/          # Utilitários (criar admin, etc)
-│  └─ README.md         # Documentação da API
-│
-└─ frontend/            # SPA React responsiva
-   ├─ src/pages/        # 14 páginas (público + admin)
-   ├─ src/components/   # Componentes reutilizáveis
-   ├─ src/services/     # Integração com API
-   ├─ src/contexts/     # Estado global (Auth + Cart)
-   └─ README.md         # Documentação do frontend
-```
+- [Visão Geral](#visão-geral)
+- [Funcionalidades](#funcionalidades)
+- [Tecnologias](#tecnologias)
+- [Estrutura do Projeto](#estrutura-do-projeto)
+- [Instalação e Configuração](#instalação-e-configuração)
+- [Como Usar](#como-usar)
+- [API Endpoints](#api-endpoints)
+- [Deploy](#deploy)
+- [Documentação](#documentação)
 
-## 🛠️ Tecnologias Implementadas
+## 🚀 Visão Geral
 
-### Backend
-- **Node.js** + Express.js
-- **PostgreSQL** com relacionamentos
-- **JWT** para autenticação
-- **Helmet** + CORS + Rate Limiting
-- **bcrypt** para senhas
-- **express-validator** + Joi
+Sistema completo de e-commerce para loja de utilidades domésticas, desenvolvido com arquitetura moderna e boas práticas. O projeto inclui:
 
-### Frontend  
-- **React 18** + Vite
-- **Tailwind CSS** (design system)
-- **React Router DOM** (SPA)
-- **Axios** (HTTP client)
-- **React Hook Form** (formulários)
-- **React Hot Toast** (notificações)
+### 🏗️ **Arquitetura**
+- **Frontend**: SPA React com Vite e Tailwind CSS
+- **Backend**: API RESTful com Node.js/Express
+- **Banco**: PostgreSQL com relacionamentos otimizados
+- **Deploy**: CI/CD automatizado com GitHub Actions
 
-## ⚙️ Requisitos
+### 🎯 **Objetivos Alcançados**
+- Interface responsiva e moderna
+- Sistema de autenticação seguro
+- Gestão completa de produtos e pedidos
+- Dashboard administrativo com analytics
+- Sistema de cashback automático
+- Deploy automatizado em produção
 
-- Node.js 18+
-- PostgreSQL 14+
-
-## 🗄️ Banco de Dados
-
-1) Crie o banco e aplique o script (DDL/funcionalidades) em `backend/database/database.sql`.
-2) Configure as variáveis de ambiente do backend (arquivo `.env` na pasta `backend/`):
-
-```
-DB_USER=postgres
-DB_PASSWORD=senha
-DB_HOST=localhost
-DB_NAME=loja_utilidades
-DB_PORT=5432
-NODE_ENV=development
-PORT=5000
-```
-
-## ▶️ Como rodar
-
-Backend (porta 5000):
-```
-cd backend
-npm install
-npm run dev
-```
-
-Frontend (porta 5173 em dev / 5174 em preview):
-```
-cd frontend
-npm install
-npm run dev
-```
-
-Base URL do frontend para a API está em `frontend/src/services/api.js` (`http://localhost:5000/api`).
-
-## 🔐 Autenticação (Admin)
-
-- Login via `POST /api/auth/login` e verificação via `GET /api/auth/verify`.
-- O token é salvo em `localStorage` como `admin_token` e habilita as rotas protegidas do painel.
-
----
-
-## ✨ Funcionalidades Principais Implementadas
+## ✨ Funcionalidades
 
 ### 🛒 **E-commerce Completo**
 - **Catálogo de Produtos**: Listagem com filtros, busca e paginação
-- **Detalhes do Produto**: Página individual com informações completas
+- **Detalhes do Produto**: Página individual com galeria de imagens
 - **Carrinho de Compras**: Gestão de itens, quantidades e totais
 - **Checkout Inteligente**: Finalização com cashback automático
 - **Sistema de Pontos**: 1 ponto = R$ 1,00 a cada R$ 50,00 gastos
+- **Cadastro Automático**: Clientes criados durante checkout
 
 ### 📊 **Dashboard Administrativo**
-- **Métricas em Tempo Real**: Pedidos, receita, clientes
+- **Métricas em Tempo Real**: Produtos, pedidos, receita, clientes
 - **Gráficos Interativos**: Receita mensal dos últimos 12 meses
 - **Comparação de Períodos**: Variação percentual (30/90 dias)
 - **Filtros Avançados**: Análise por período customizado
+- **Produtos com Baixo Estoque**: Alertas automáticos
 
 ### 🏪 **Gestão de Produtos**
 - **CRUD Completo**: Criar, editar, visualizar e excluir
 - **Controle de Estoque**: Atualização em tempo real
 - **Categorias Dinâmicas**: Gestão automática de categorias
 - **Upload de Imagens**: Interface para fotos dos produtos
+- **Busca e Filtros**: Por nome, categoria, preço
 
 ### 📦 **Sistema de Pedidos**
 - **Processamento Automático**: Checkout com validações
-- **Gestão de Status**: Acompanhamento completo
+- **Gestão de Status**: Acompanhamento completo (pendente → entregue)
 - **Histórico Detalhado**: Por cliente e produto
 - **Exclusão Segura**: Com confirmação administrativa
+- **Itens do Pedido**: Quantidades, preços e subtotais
 
 ### 👥 **Gestão de Clientes**
 - **Cadastro Automático**: Durante o checkout
 - **Sistema de Cashback**: Pontos de fidelidade
 - **Histórico de Compras**: Acompanhamento completo
 - **Busca e Filtros**: Ordenação por pontos/nome
+- **Perfis Detalhados**: Dados pessoais e contato
 
----
+### 🔐 **Sistema de Autenticação**
+- **Login Administrativo**: JWT com expiração
+- **Proteção de Rotas**: Middleware de autenticação
+- **Verificação de Token**: Validação automática
+- **Logout Seguro**: Limpeza de sessão
 
-## 🧭 Rotas da Aplicação
+## 🛠️ Tecnologias
 
-### 🌐 **Área Pública (Cliente)**
+### **Frontend**
+- **React 18** - Biblioteca JavaScript para interfaces
+- **Vite** - Build tool e dev server ultra-rápido
+- **Tailwind CSS** - Framework CSS utilitário
+- **React Router DOM** - Roteamento da aplicação
+- **Axios** - Cliente HTTP com interceptors
+- **React Hook Form** - Formulários performáticos
+- **React Hot Toast** - Notificações elegantes
+- **Headless UI** - Componentes acessíveis
+- **Lucide React** - Ícones modernos
+
+### **Backend**
+- **Node.js** - Runtime JavaScript
+- **Express.js** - Framework web
+- **PostgreSQL** - Banco de dados relacional
+- **JWT** - Autenticação e autorização
+- **bcrypt** - Hash de senhas
+- **helmet** - Headers de segurança
+- **express-rate-limit** - Proteção contra ataques
+- **express-validator** - Validação de dados
+- **winston** - Sistema de logs
+- **compression** - Compressão de respostas
+
+### **DevOps & Deploy**
+- **GitHub Actions** - CI/CD Pipeline
+- **Nginx** - Servidor web e proxy reverso
+- **PM2** - Process manager para Node.js
+- **Let's Encrypt** - Certificados SSL gratuitos
+- **Docker** - Containerização (opcional)
+
+## 📁 Estrutura do Projeto
+
 ```
-/                     # Home com produtos em destaque
-/produtos             # Catálogo com filtros e busca  
-/produto/:id          # Detalhes + adicionar ao carrinho
-/carrinho             # Carrinho de compras
-/checkout             # Finalização com cashback
+loja-materiais-utilidades/
+├── 📁 backend/                    # API RESTful completa
+│   ├── 📁 routes/                # 5 módulos de rotas
+│   │   ├── auth.js              # Autenticação JWT
+│   │   ├── product.js           # Gestão de produtos
+│   │   ├── pedidos.js           # Sistema de pedidos
+│   │   ├── usuarios.js          # Gestão de usuários
+│   │   └── stats.js             # Estatísticas e dashboard
+│   ├── 📁 middleware/           # Middlewares customizados
+│   │   ├── auth.js             # Autenticação JWT
+│   │   └── performance.js      # Otimizações de performance
+│   ├── 📁 database/            # Scripts do banco
+│   │   └── database.sql        # Schema completo PostgreSQL
+│   ├── 📁 scripts/             # Utilitários
+│   │   ├── createAdmin.js      # Criação de administradores
+│   │   └── adminManager.js     # Gerenciador completo
+│   ├── 📁 utils/               # Utilitários
+│   │   ├── logger.js           # Sistema de logs
+│   │   └── cashback.js         # Cálculos de cashback
+│   ├── 📁 config/              # Configurações
+│   │   ├── database.js         # Conexão PostgreSQL
+│   │   └── production.js       # Configurações de produção
+│   ├── server.js               # Servidor principal
+│   └── README.md               # Documentação da API
+│
+├── 📁 frontend/                 # SPA React responsiva
+│   ├── 📁 src/
+│   │   ├── 📁 pages/           # 14 páginas (público + admin)
+│   │   │   ├── Home.jsx        # Página inicial
+│   │   │   ├── Products.jsx    # Catálogo de produtos
+│   │   │   ├── ProductDetails.jsx # Detalhes do produto
+│   │   │   ├── Cart.jsx        # Carrinho de compras
+│   │   │   ├── Checkout.jsx    # Finalização de compra
+│   │   │   ├── AdminLogin.jsx  # Login administrativo
+│   │   │   ├── AdminDashboard.jsx # Dashboard admin
+│   │   │   ├── AdminProducts.jsx # Gestão de produtos
+│   │   │   ├── AdminOrders.jsx # Gestão de pedidos
+│   │   │   ├── AdminCustomers.jsx # Gestão de clientes
+│   │   │   └── AdminRelatorios.jsx # Relatórios
+│   │   ├── 📁 components/      # Componentes reutilizáveis
+│   │   │   ├── Navbar.jsx      # Navegação principal
+│   │   │   ├── Footer.jsx      # Rodapé da aplicação
+│   │   │   ├── PrivateRoute.jsx # Proteção de rotas
+│   │   │   └── LoadingSpinner.jsx # Componente de loading
+│   │   ├── 📁 contexts/        # Contextos React
+│   │   │   ├── AuthContext.jsx # Autenticação
+│   │   │   └── CartContext.jsx # Carrinho de compras
+│   │   ├── 📁 services/        # Serviços de API
+│   │   │   ├── api.js          # Configuração do Axios
+│   │   │   ├── productService.js # Serviços de produtos
+│   │   │   ├── orderService.js # Serviços de pedidos
+│   │   │   ├── userService.js  # Serviços de usuários
+│   │   │   └── statsService.js # Serviços de estatísticas
+│   │   ├── 📁 hooks/           # Custom hooks
+│   │   │   └── useDebounce.js  # Hook para debounce
+│   │   ├── App.jsx             # Componente principal
+│   │   ├── main.jsx            # Ponto de entrada
+│   │   └── index.css           # Estilos globais
+│   ├── vite.config.js          # Configuração do Vite
+│   ├── tailwind.config.js      # Configuração do Tailwind
+│   └── README.md               # Documentação do frontend
+│
+├── 📁 deploy/                   # Scripts de deploy
+│   ├── setup-server.sh         # Setup inicial do servidor
+│   ├── deploy.sh               # Script de deploy
+│   ├── nginx.conf              # Configuração do Nginx
+│   └── ecosystem.config.js     # Configuração do PM2
+│
+├── 📁 .github/                  # CI/CD Pipeline
+│   └── 📁 workflows/
+│       └── ci-cd.yml           # GitHub Actions
+│
+├── DEPLOY.md                    # Guia completo de deploy
+└── README.md                    # Esta documentação
 ```
 
-### 🔐 **Área Administrativa (JWT)**
+## ⚙️ Instalação e Configuração
+
+### **Pré-requisitos**
+- Node.js 18+ 
+- PostgreSQL 14+
+- Git
+
+### **1. Clone do Repositório**
+```bash
+git clone <repositorio>
+cd loja-materiais-utilidades
 ```
-/admin/login          # Autenticação de administradores
-/admin                # Dashboard com métricas e gráficos
-/admin/produtos       # Gerenciar produtos (CRUD)
-/admin/produtos/novo  # Criar novo produto
-/admin/produtos/editar/:id # Editar produto existente
-/admin/pedidos        # Gestão de pedidos
-/admin/pedidos/:id    # Detalhes do pedido
-/admin/clientes       # Gestão de clientes e pontos
-/admin/relatorios     # Relatórios e analytics
+
+### **2. Configuração do Banco de Dados**
+```bash
+# Criar banco PostgreSQL
+createdb loja_utilidades
+
+# Aplicar schema completo
+psql -d loja_utilidades -f backend/database/database.sql
 ```
 
----
+### **3. Configuração do Backend**
+```bash
+cd backend
 
-## 🔗 API Endpoints Implementados (20+)
+# Instalar dependências
+npm install
 
-### 🔐 **Autenticação**
+# Configurar variáveis de ambiente
+cp .env.example .env
+# Editar .env com suas configurações:
+```
+
+```env
+# Servidor
+PORT=5000
+NODE_ENV=development
+
+# Banco de Dados
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=loja_utilidades
+DB_USER=seu_usuario
+DB_PASSWORD=sua_senha
+
+# JWT
+JWT_SECRET=sua_chave_secreta_muito_segura
+
+# Logs
+LOG_LEVEL=info
+```
+
+```bash
+# Criar administrador inicial
+node scripts/createAdmin.js
+
+# Iniciar servidor de desenvolvimento
+npm run dev
+```
+
+### **4. Configuração do Frontend**
+```bash
+cd frontend
+
+# Instalar dependências
+npm install
+
+# Configurar variáveis de ambiente (opcional)
+cp .env.example .env
+# Editar .env:
+```
+
+```env
+# API Backend
+VITE_API_URL=http://localhost:5000/api
+
+# Ambiente
+VITE_NODE_ENV=development
+```
+
+```bash
+# Iniciar servidor de desenvolvimento
+npm run dev
+```
+
+## 🚀 Como Usar
+
+### **Acessos do Sistema**
+- **Frontend**: http://localhost:3000
+- **Admin Login**: http://localhost:3000/admin/login
+- **API Health**: http://localhost:5000/api/health
+
+### **Credenciais Padrão**
+- **Usuário**: `admin`
+- **Senha**: `admin123`
+
+### **Funcionalidades Principais**
+
+#### **🛒 Área do Cliente**
+1. **Navegar pelo Catálogo**: Filtros por categoria, busca por nome
+2. **Adicionar ao Carrinho**: Controle de quantidade e estoque
+3. **Finalizar Compra**: Checkout com sistema de cashback
+4. **Ganhar Pontos**: 1 ponto por cada R$ 50 gastos
+
+#### **🔐 Área Administrativa**
+1. **Dashboard**: Visualizar métricas e gráficos
+2. **Gestão de Produtos**: CRUD completo com imagens
+3. **Gestão de Pedidos**: Acompanhar status e histórico
+4. **Gestão de Clientes**: Ver pontos e histórico de compras
+5. **Relatórios**: Análises de vendas e performance
+
+## 🔌 API Endpoints
+
+### **🔐 Autenticação**
 ```
 POST /api/auth/login              # Login administrativo
 GET  /api/auth/verify             # Verificar token JWT
 POST /api/auth/logout             # Logout seguro
 ```
 
-### 🛍️ **Produtos**
+### **🛍️ Produtos**
 ```
 GET    /api/produtos                    # Listar (público, com filtros)
 GET    /api/produtos/:id                # Produto específico
@@ -174,7 +330,7 @@ PUT    /api/produtos/:id                # Atualizar produto (admin)
 DELETE /api/produtos/:id                # Deletar produto (admin)
 ```
 
-### 📦 **Pedidos**
+### **📦 Pedidos**
 ```
 POST   /api/pedidos                     # Checkout com cashback
 GET    /api/pedidos                     # Listar pedidos (admin)
@@ -182,7 +338,7 @@ GET    /api/pedidos/:id                 # Detalhes do pedido
 DELETE /api/pedidos/:id                 # Deletar pedido (admin)
 ```
 
-### 👤 **Usuários**
+### **👤 Usuários**
 ```
 GET  /api/usuarios                      # Listar usuários (admin)
 POST /api/usuarios                      # Cadastrar cliente
@@ -191,121 +347,163 @@ GET  /api/usuarios/:id/pontos           # Consultar cashback
 GET  /api/usuarios/:id/pedidos          # Histórico de compras
 ```
 
-### 📊 **Estatísticas**
+### **📊 Estatísticas**
 ```
 GET /api/stats/dashboard                # Métricas com filtros opcionais
 GET /api/stats/revenue-monthly          # Receita mensal (12 meses)
 ```
 
-### 🏥 **Sistema**
+### **🏥 Sistema**
 ```
 GET /api/health                         # Status da API
 ```
 
----
+## 🚀 Deploy
 
-## 🚀 Destaques da Implementação Completa
+### **Deploy Automatizado**
+O projeto inclui pipeline CI/CD completo com GitHub Actions:
 
-### 📊 **Dashboard Analytics Avançado**
-- **Métricas Comparativas**: Variação percentual real vs período anterior
-- **Gráficos Interativos**: Receita mensal com valores rotulados
-- **Filtros Inteligentes**: Períodos customizáveis (Tudo, 30d, 90d)
-- **Tooltips Informativos**: Valores absolutos e comparativos
-
-### 🏪 **Gestão Administrativa Completa**
-- **Produtos**: CRUD com categorias dinâmicas e controle de estoque
-- **Pedidos**: Listagem paginada + detalhes + exclusão segura
-- **Clientes**: Gestão de usuários com sistema de pontos
-- **Relatórios**: Analytics e métricas de performance
-
-### 🛒 **E-commerce Funcional**
-- **Catálogo Responsivo**: Filtros, busca e paginação
-- **Carrinho Inteligente**: Persistência e cálculo automático
-- **Checkout Avançado**: Cashback automático + cadastro de clientes
-- **Sistema de Pontos**: 1 ponto = R$ 1,00 a cada R$ 50,00
-
-### 🔒 **Segurança e Performance**
-- **Autenticação JWT**: Tokens seguros com expiração
-- **Rate Limiting**: Proteção contra ataques
-- **Validações**: Client-side e server-side
-- **Responsividade**: Mobile-first design
-
-## 🛠️ Scripts úteis
-
-Backend:
-```
-npm run dev   # nodemon
-npm start     # produção simples (node server.js)
+```yaml
+# .github/workflows/ci-cd.yml
+- Testes automatizados
+- Build de produção
+- Deploy para staging/produção
+- Monitoramento de qualidade
 ```
 
-Frontend:
-```
-npm run dev      # Vite dev server
-npm run build    # build de produção
-npm run preview  # servir build local na porta 5174
-```
+### **Deploy Manual**
 
----
-
-## 📋 Primeiros Passos
-
-### 1. **Clone e Configuração**
+#### **Setup Rápido**
 ```bash
-git clone <repositorio>
-cd loja-materiais-utilidades
+# 1. Setup do servidor
+sudo bash deploy/setup-server.sh
+
+# 2. Configurar domínio e SSL
+# Editar deploy/nginx.conf com seu domínio
+sudo certbot --nginx -d seudominio.com
+
+# 3. Deploy da aplicação
+./deploy/deploy.sh
 ```
 
-### 2. **Banco de Dados**
-```bash
-# Criar banco PostgreSQL
-createdb loja_utilidades
+#### **Configurações de Produção**
+- **Nginx**: Proxy reverso e SSL
+- **PM2**: Process manager para Node.js
+- **PostgreSQL**: Banco de dados otimizado
+- **Backup**: Automático diário
+- **Monitoramento**: Logs estruturados
 
-# Aplicar schema
-psql -d loja_utilidades -f backend/database/database.sql
+### **Documentação Completa de Deploy**
+- 📖 [Guia de Deploy Completo](DEPLOY.md)
+- 🔧 [Configurações de Produção](backend/config/production.js)
+- 📊 [Monitoramento e Logs](backend/utils/logger.js)
+- 🔄 [CI/CD Pipeline](.github/workflows/ci-cd.yml)
+
+## 📚 Documentação
+
+### **Documentação Detalhada**
+- **Backend**: [backend/README.md](backend/README.md) - API completa e endpoints
+- **Frontend**: [frontend/README.md](frontend/README.md) - Componentes e arquitetura
+- **Deploy**: [DEPLOY.md](DEPLOY.md) - Guia completo de produção
+
+### **Scripts Úteis**
+
+#### **Backend**
+```bash
+npm run dev          # Desenvolvimento com nodemon
+npm start            # Produção
+npm test             # Testes (se configurados)
+node scripts/createAdmin.js  # Criar administrador
 ```
 
-### 3. **Backend**
+#### **Frontend**
 ```bash
-cd backend
+npm run dev          # Servidor de desenvolvimento
+npm run build        # Build de produção
+npm run preview      # Preview do build
+npm run lint         # Linting de código
+```
+
+## 🎯 Destaques da Implementação
+
+### **📊 Dashboard Analytics Avançado**
+- Métricas comparativas com períodos anteriores
+- Gráficos interativos de receita mensal
+- Filtros inteligentes por período
+- Tooltips informativos com valores absolutos
+
+### **🛒 E-commerce Funcional**
+- Catálogo responsivo com filtros avançados
+- Carrinho inteligente com persistência
+- Checkout avançado com cashback automático
+- Sistema de pontos de fidelidade
+
+### **🔒 Segurança e Performance**
+- Autenticação JWT com expiração
+- Rate limiting contra ataques
+- Validações client-side e server-side
+- Design responsivo mobile-first
+
+### **🚀 Deploy e Produção**
+- CI/CD Pipeline automatizado
+- SSL/HTTPS com Let's Encrypt
+- Monitoramento e logs estruturados
+- Backup automático do banco
+- Performance otimizada
+
+## 🐛 Troubleshooting
+
+### **Problemas Comuns**
+
+#### **Erro de Conexão com Banco**
+```bash
+# Verificar se PostgreSQL está rodando
+sudo systemctl status postgresql
+
+# Testar conexão
+psql -h localhost -U usuario -d loja_utilidades
+```
+
+#### **Erro de CORS no Frontend**
+```bash
+# Verificar se backend está rodando
+curl http://localhost:5000/api/health
+
+# Configurar proxy no vite.config.js
+proxy: {
+  '/api': {
+    target: 'http://localhost:5000',
+    changeOrigin: true
+  }
+}
+```
+
+#### **Erro de Build**
+```bash
+# Limpar cache
+rm -rf node_modules package-lock.json
 npm install
-# Configurar .env (veja seção anterior)
-node scripts/createAdmin.js  # Criar admin padrão
-npm run dev                  # Iniciar API
+
+# Verificar dependências
+npm audit fix
 ```
 
-### 4. **Frontend**
-```bash
-cd frontend
-npm install
-# Criar .env: VITE_API_URL=http://localhost:5000/api
-npm run dev                  # Iniciar aplicação
-```
+## 📞 Suporte
 
-### 5. **Acessar Sistema**
-- **Frontend**: http://localhost:3000
-- **Admin**: http://localhost:3000/admin/login (admin/123456)
-- **API**: http://localhost:5000/api/health
+Para dúvidas ou problemas:
+1. Verificar logs em `backend/logs/`
+2. Consultar documentação específica
+3. Verificar configurações do `.env`
+4. Testar endpoints da API
 
----
+## 📄 Licença
 
-## 📚 Documentação Adicional
-
-- **Backend**: `backend/README.md` - Documentação completa da API
-- **Frontend**: `frontend/README.md` - Componentes e arquitetura
-- **Banco**: `backend/database/database.sql` - Schema e estruturas
+Este projeto foi desenvolvido para fins educacionais e comerciais.
 
 ---
 
-## ❗️ Observações Importantes
-
-- ✅ **Sistema Completo**: Todas as funcionalidades implementadas
-- 🔧 **Pronto para Produção**: Configurações e otimizações aplicadas
-- 📱 **Totalmente Responsivo**: Funciona em desktop, tablet e mobile
-- 🛡️ **Seguro**: Autenticação, validações e proteções implementadas
-
----
-
-*Sistema de E-commerce Completo e Funcional*
-*Última atualização: Janeiro 2025*
-*Versão: 2.0 - Implementação Completa*
+**Sistema de E-commerce Completo e Funcional**  
+**Desenvolvido com ❤️ para Loja de Utilidades Domésticas**  
+**Última atualização: Agosto 2025**  
+**Versão: 2.0 - Implementação Completa**
 

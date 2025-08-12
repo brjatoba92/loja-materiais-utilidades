@@ -1,574 +1,458 @@
-# Backend - Sistema de Loja de Utilidades Domésticas
-## Documentação da API v2.0
+# 🏪 Backend - Loja de Utilidades Domésticas
 
----
+Backend completo para sistema de loja de utilidades domésticas com autenticação, gestão de produtos, pedidos, sistema de cashback e dashboard administrativo.
 
-## 📋 Visão Geral do Backend
+## 📋 Índice
 
-### Objetivo
-API RESTful completa para sistema de e-commerce de loja de utilidades domésticas, com sistema de cashback automático, autenticação JWT e painel administrativo.
+- [Funcionalidades](#-funcionalidades)
+- [Tecnologias Utilizadas](#-tecnologias-utilizadas)
+- [Estrutura do Projeto](#-estrutura-do-projeto)
+- [Instalação e Configuração](#-instalação-e-configuração)
+- [Banco de Dados](#-banco-de-dados)
+- [API Endpoints](#-api-endpoints)
+- [Autenticação e Segurança](#-autenticação-e-segurança)
+- [Sistema de Cashback](#-sistema-de-cashback)
+- [Logs e Monitoramento](#-logs-e-monitoramento)
+- [Scripts de Gerenciamento](#-scripts-de-gerenciamento)
+- [Deploy](#-deploy)
 
-### Tecnologias Utilizadas
-- **Backend**: Node.js com Express.js
-- **Banco de Dados**: PostgreSQL
-- **Autenticação**: JWT (JSON Web Tokens)
-- **Segurança**: Helmet, CORS, Rate Limiting
-- **Validação**: express-validator, Joi
+## 🚀 Funcionalidades
 
----
+### 🔐 Autenticação e Autorização
+- **Login de Administradores**: Sistema de autenticação JWT
+- **Middleware de Proteção**: Rotas protegidas por token
+- **Controle de Acesso**: Diferenciação entre admin e usuários
 
-## 🏗️ Arquitetura Técnica
+### 📦 Gestão de Produtos
+- **CRUD Completo**: Criar, listar, atualizar e deletar produtos
+- **Busca e Filtros**: Por categoria, nome e descrição
+- **Controle de Estoque**: Verificação automática de disponibilidade
+- **Paginação**: Listagem paginada com limite configurável
+- **Produtos com Baixo Estoque**: Alertas para administradores
 
-### Arquitetura do Backend
-```
-┌──────────────────┐    ┌─────────────────┐
-│     Backend      │    │  Banco de Dados │
-│   Node.js        │◄──►│   PostgreSQL    │
-│   - Express      │    │   - Relacional  │
-│   - JWT Auth     │    │   - ACID        │
-│   - RESTful API  │    │   - Escalável   │
-│   - Helmet       │    │   - Indexes     │
-│   - Rate Limit   │    │   - Triggers    │
-│   ✅ CONCLUÍDO   │    │   ✅ CONCLUÍDO  │
-└──────────────────┘    └─────────────────┘
-```
+### 👥 Gestão de Usuários
+- **Cadastro de Clientes**: Sistema de registro de usuários
+- **Perfis de Usuário**: Dados pessoais e histórico
+- **Sistema de Pontos**: Cashback automático por compras
 
-### Dependências do Backend
-```json
-{
-  "principais": {
-    "express": "^4.18.2",
-    "pg": "^8.11.1",
-    "jsonwebtoken": "^9.0.2",
-    "bcrypt": "^6.0.0",
-    "helmet": "^7.0.0",
-    "cors": "^2.8.5",
-    "express-rate-limit": "^6.8.1",
-    "express-validator": "^7.0.1",
-    "joi": "^17.9.2",
-    "dotenv": "^16.3.1"
-  },
-  "desenvolvimento": {
-    "nodemon": "^3.0.1",
-    "jest": "^29.6.1"
-  }
-}
-```
+### 🛒 Sistema de Pedidos
+- **Checkout Completo**: Processamento de pedidos com validações
+- **Sistema de Cashback**: Pontos ganhos e utilizados
+- **Controle de Estoque**: Atualização automática do estoque
+- **Status de Pedidos**: Acompanhamento do ciclo de vida
+- **Histórico de Compras**: Pedidos por usuário
 
-### Funcionalidades da API
+### 📊 Dashboard e Estatísticas
+- **Métricas Gerais**: Total de produtos, clientes, receita e pedidos
+- **Receita Mensal**: Gráficos dos últimos 12 meses
+- **Filtros por Período**: Análise temporal dos dados
+- **Relatórios**: Dados para tomada de decisão
 
-#### 🔐 Autenticação e Autorização
-- ✅ Login de administradores com JWT
-- ✅ Middleware de autenticação
-- ✅ Controle de permissões (admin/público)
-- ✅ Verificação de tokens
-- ✅ Logout seguro
+### 🔧 Ferramentas Administrativas
+- **Scripts de Gerenciamento**: Criação e gestão de administradores
+- **Logs Detalhados**: Monitoramento de performance e erros
+- **Backup e Restore**: Scripts para manutenção do banco
 
-#### 🛍️ Gestão de Produtos
-- ✅ CRUD completo de produtos
-- ✅ Listagem com filtros e paginação
-- ✅ Busca por nome/descrição/categoria
-- ✅ Controle de estoque
-- ✅ Produtos com estoque baixo
-- ✅ Categorias dinâmicas
+## 🛠️ Tecnologias Utilizadas
 
-#### 👤 Gestão de Usuários
-- ✅ Cadastro de clientes
-- ✅ Perfil de usuários
-- ✅ Sistema de pontos de cashback
-- ✅ Histórico de pedidos
-- ✅ Listagem com busca e ordenação
+### Core
+- **Node.js** - Runtime JavaScript
+- **Express.js** - Framework web
+- **PostgreSQL** - Banco de dados relacional
+- **JWT** - Autenticação e autorização
 
-#### 📦 Sistema de Pedidos
-- ✅ Checkout com cashback automático
-- ✅ Criação de clientes na compra
-- ✅ Controle de estoque em tempo real
-- ✅ Transações atomicas
-- ✅ Listagem e gestão de pedidos
-
-#### 📊 Relatórios e Estatísticas
-- ✅ Dashboard administrativo
-- ✅ Estatísticas com filtros de período
-- ✅ Receita mensal
-- ✅ Métricas de clientes e produtos
-
----
-
-## 📊 Modelo de Dados
-
-### Entidades Principais
-
-#### 🏪 Produtos
-```sql
-produtos {
-  id: SERIAL PRIMARY KEY
-  nome: VARCHAR(255) NOT NULL
-  descricao: TEXT
-  preco: DECIMAL(10,2) NOT NULL
-  categoria: VARCHAR(100)
-  estoque: INTEGER DEFAULT 0
-  imagem_url: VARCHAR(500)
-  ativo: BOOLEAN DEFAULT true
-  created_at: TIMESTAMP DEFAULT NOW()
-  updated_at: TIMESTAMP DEFAULT NOW()
-}
-```
-
-#### 👤 Usuários (Clientes)
-```sql
-usuarios {
-  id: SERIAL PRIMARY KEY
-  nome: VARCHAR(255) NOT NULL
-  email: VARCHAR(255) UNIQUE NOT NULL
-  telefone: VARCHAR(20)
-  pontos_cashback: INTEGER DEFAULT 0
-  created_at: TIMESTAMP DEFAULT NOW()
-  updated_at: TIMESTAMP DEFAULT NOW()
-}
-```
-
-#### 🔐 Administradores
-```sql
-administradores {
-  id: SERIAL PRIMARY KEY
-  usuario: VARCHAR(100) UNIQUE NOT NULL
-  senha_hash: VARCHAR(255) NOT NULL
-  nome: VARCHAR(255) NOT NULL
-  ultimo_acesso: TIMESTAMP
-  created_at: TIMESTAMP DEFAULT NOW()
-}
-```
-
-#### 🛍️ Pedidos
-```sql
-pedidos {
-  id: SERIAL PRIMARY KEY
-  usuario_id: INTEGER REFERENCES usuarios(id)
-  total: DECIMAL(10,2) NOT NULL
-  pontos_utilizados: INTEGER DEFAULT 0
-  pontos_gerados: INTEGER DEFAULT 0
-  status: VARCHAR(50) DEFAULT 'pendente'
-  created_at: TIMESTAMP DEFAULT NOW()
-}
-```
-
-#### 📦 Itens do Pedido
-```sql
-itens_pedido {
-  id: SERIAL PRIMARY KEY
-  pedido_id: INTEGER REFERENCES pedidos(id)
-  produto_id: INTEGER REFERENCES produtos(id)
-  quantidade: INTEGER NOT NULL
-  preco_unitario: DECIMAL(10,2) NOT NULL
-  subtotal: DECIMAL(10,2) NOT NULL
-}
-```
-
----
-
-## 🎯 Fases de Desenvolvimento
-
-### Fase 1: Backend ✅ **CONCLUÍDO**
-- [x] Estrutura do projeto Node.js com Express
-- [x] Configuração completa do servidor
-- [x] Middlewares de segurança (Helmet, CORS, Rate Limiting)
-- [x] **5 módulos de rotas implementados**:
-  - [x] `/api/auth` - Autenticação JWT
-  - [x] `/api/produtos` - CRUD completo + categorias + estoque baixo
-  - [x] `/api/usuarios` - Gestão de clientes + pontos
-  - [x] `/api/pedidos` - Checkout + cashback automático
-  - [x] `/api/stats` - Dashboard + relatórios
-- [x] Sistema de autenticação JWT com middleware
-- [x] Validações rigorosas (express-validator + Joi)
-- [x] **Sistema de cashback automatizado**
-- [x] Transações de banco para consistência
-- [x] **Paginação em todas as listagens**
-- [x] Filtros e busca avançada
-- [x] Gestão de estoque em tempo real
-- [x] **20+ endpoints funcionais**
-
-### Fase 2: Banco de Dados ✅ **CONCLUÍDO**
-- [x] Setup PostgreSQL
-- [x] Criação das tabelas com relacionamentos
-- [x] Seeds iniciais (admin + produtos exemplo)
-- [x] Stored procedures para cashback
-- [x] Índices de performance otimizados
-- [x] Triggers automáticos
-- [x] Views de relatórios
-- [x] Sistema de logs e auditoria
-- [x] Funções de busca avançada
-- [x] Validações de integridade
-
-### Fase 3: Integração com Frontend
-- [x] API totalmente compatível com frontend React
-- [x] CORS configurado para desenvolvimento e produção
-- [x] Headers apropriados para SPAs
-- [x] Endpoints testados e funcionais
-- [x] Documentação completa para integração
-
-### Fase 4: Hospedagem e Deploy
-- [x] Configuração de produção preparada
-- [x] Variáveis de ambiente configuradas
-- [x] Scripts de deploy
-- [ ] CI/CD Pipeline
-- [ ] Monitoramento em produção
-- [ ] SSL/HTTPS
-- [ ] Performance optimization avançada
-
----
-
-## 🔐 Sistema de Cashback
-
-### Regras de Negócio
-```javascript
-// Exemplo de cálculo
-const valorCompra = 150.00;
-const pontosGerados = Math.floor(valorCompra / 50); // 3 pontos
-const valorPontos = pontosGerados * 1.00; // R$ 3,00 em cashback
-```
-
-### Fluxo do Cashback
-1. Cliente finaliza compra
-2. Sistema calcula pontos (R$ 50,00 = 1 ponto)
-3. Pontos são creditados na conta
-4. Cliente pode usar em compras futuras (1 ponto = R$ 1,00)
-
----
-
-## 📡 API Endpoints Implementados
-
-### 🔐 Autenticação (`/api/auth`)
-```
-POST /api/auth/login          # Login de administrador
-POST /api/auth/logout         # Logout (requer token)
-GET  /api/auth/verify         # Verificar validade do token JWT
-```
-
-### 🛍️ Produtos (`/api/produtos`)
-```
-GET    /api/produtos                    # Listar produtos (público, com filtros)
-GET    /api/produtos/:id                # Buscar produto específico
-GET    /api/produtos/low-stock          # Produtos com estoque baixo (admin)
-GET    /api/produtos/categorias/distinct # Listar categorias distintas
-POST   /api/produtos                    # Criar produto (admin)
-PUT    /api/produtos/:id                # Atualizar produto (admin)
-DELETE /api/produtos/:id                # Deletar produto (admin)
-```
-
-### 📦 Pedidos (`/api/pedidos`)
-```
-POST   /api/pedidos             # Criar pedido (checkout com cashback)
-GET    /api/pedidos/:id         # Buscar pedido específico
-GET    /api/pedidos             # Listar pedidos (admin, com filtros)
-DELETE /api/pedidos/:id         # Deletar pedido (admin)
-```
-
-### 👤 Usuários (`/api/usuarios`)
-```
-GET  /api/usuarios              # Listar usuários (admin, com busca e ordenação)
-POST /api/usuarios              # Cadastrar cliente
-GET  /api/usuarios/:id          # Perfil do cliente
-GET  /api/usuarios/:id/pontos   # Consultar pontos de cashback
-GET  /api/usuarios/:id/pedidos  # Histórico de pedidos do cliente
-```
-
-### 📊 Estatísticas (`/api/stats`)
-```
-GET /api/stats/dashboard        # Estatísticas do dashboard (admin)
-                               # Suporta filtros ?startDate= e ?endDate=
-GET /api/stats/revenue-monthly  # Receita mensal dos últimos 12 meses
-```
-
-### 🏥 Saúde do Sistema
-```
-GET /api/health                 # Status da API
-```
-
----
-
-## 🛡️ Segurança e Middlewares
-
-### Medidas de Segurança Implementadas
-- ✅ **Hash de senhas**: bcrypt para criptografia
-- ✅ **Autenticação JWT**: Tokens com expiração de 1h
-- ✅ **Middleware de autenticação**: `authenticateToken` e `isAdmin`
-- ✅ **Validação rigorosa**: express-validator e Joi
-- ✅ **Rate limiting**: 100 requests/15min por IP
-- ✅ **Headers de segurança**: Helmet.js
-- ✅ **CORS configurado**: Origens controladas
-- ✅ **Sanitização de inputs**: Prevenção de SQL injection
-- ✅ **Transações de banco**: Atomicidade em operações críticas
-
-### Estrutura de Middleware
-```javascript
-// Middleware global (server.js)
-1. helmet() - Headers de segurança
-2. cors() - Controle de origem
-3. rateLimit() - Limitação de taxa
-4. express.json() - Parse JSON com limite 10mb
-
-// Middleware de autenticação (middleware/auth.js)
-- authenticateToken: Verificação JWT
-- isAdmin: Verificação de permissão admin
-
-// Middleware de validação (por rota)
-- express-validator: Validação de entrada
-- Joi: Schemas de validação complexos
-```
-
----
-
-## 🚀 Próximos Passos
-
-### ✅ **FASES CONCLUÍDAS**
-
-#### Etapa 1: Backend Node.js - **FINALIZADO**
-- ✅ API RESTful completa
-- ✅ Sistema de autenticação JWT
-- ✅ CRUD de produtos com validações
-- ✅ Sistema de usuários e pontos
-- ✅ Checkout com cashback automático
-- ✅ Middlewares de segurança
-- ✅ Rate limiting implementado
-- ✅ Documentação completa
-
-#### Etapa 2: Banco PostgreSQL - **FINALIZADO**
-- ✅ Estrutura completa das tabelas
-- ✅ Relacionamentos e constraints
-- ✅ Índices para performance
-- ✅ Triggers automáticos
-- ✅ Stored procedures de cashback
-- ✅ Views de relatórios
-- ✅ Sistema de logs
-- ✅ Dados iniciais (seeds)
-- ✅ Admin padrão criado
-- ✅ Produtos exemplo inseridos
-
-### 🔄 **PRÓXIMA ETAPA: Frontend React**
-
-**Status**: 🎯 **PRONTO PARA INÍCIO**
-
-**Deliverables da Fase 3:**
-1. Setup do projeto React + Vite
-2. Estrutura de componentes
-3. Sistema de roteamento
-4. Gerenciamento de estado (Context API)
-5. Interface responsiva com Tailwind CSS
-6. Integração completa com a API
-7. Painel administrativo
-8. Área do cliente
-9. Sistema de carrinho
-10. Checkout com cashback
-11. Autenticação no frontend
-12. Validações de formulário
-
-### 📋 **CHECKLIST TÉCNICO**
-
-#### Backend ✅
-- [x] Server Express configurado
-- [x] Banco PostgreSQL estruturado  
-- [x] APIs funcionais testadas
-- [x] Sistema de segurança implementado
-- [x] Cashback automatizado
-- [x] Documentação completa
-
-#### Próximo: Frontend 🔄
-- [ ] Configuração inicial React
-- [ ] Componentização
-- [ ] Roteamento (React Router)
-- [ ] Estado global
-- [ ] Integração API
-- [ ] UI/UX responsiva
-- [ ] Testes de integração
-
----
-
-## 💡 Observações Técnicas
+### Segurança
+- **bcrypt** - Hash de senhas
+- **helmet** - Headers de segurança
+- **express-rate-limit** - Proteção contra ataques
+- **express-validator** - Validação de dados
 
 ### Performance
-- Índices otimizados no PostgreSQL
-- Cache de consultas frequentes
-- Lazy loading no frontend
-- Compressão de assets
+- **compression** - Compressão de respostas
+- **winston** - Sistema de logs
+- **connection pooling** - Otimização de conexões
 
-### Escalabilidade
-- Arquitetura modular
-- Separação de responsabilidades
-- API RESTful
-- Banco relacional normalizado
+### Desenvolvimento
+- **nodemon** - Hot reload
+- **dotenv** - Variáveis de ambiente
+- **jest** - Testes unitários
 
-### Manutenibilidade
-- Código bem documentado
-- Padrões de projeto
-- Testes automatizados
-- Logs estruturados
+## 📁 Estrutura do Projeto
 
----
-
-*Documentação atualizada em: Julho 2025*
-*Versão: 1.0*
-*Autor: Sistema de Desenvolvimento*
-
----
-
----
-
-## 🚀 Implementações Completas do Sistema
-
-### 🎯 **STATUS ATUAL: API BACKEND COMPLETA E FUNCIONAL**
-
-### Backend API (Node.js + Express) ✅
-- **API RESTful**: 20+ endpoints funcionais
-- **Autenticação**: JWT com middleware de segurança
-- **CRUD Completo**: Produtos, usuários, pedidos
-- **Sistema de Cashback**: Automático com regras de negócio
-- **Dashboard Admin**: Estatísticas e relatórios via API
-- **Segurança**: Rate limiting, validações, transações
-- **Paginação**: Em todas as listagens
-- **Filtros**: Busca avançada por categoria, nome, status
-
-### Banco de Dados (PostgreSQL) ✅
-- **5 Tabelas**: produtos, usuarios, administradores, pedidos, itens_pedido
-- **Relacionamentos**: Foreign keys e constraints
-- **Índices**: Otimização de performance
-- **Triggers**: Atualizações automáticas
-- **Seeds**: Dados iniciais para testes
-
-### Funcionalidades da API Implementadas
-- ✅ **API E-commerce Completa**: Endpoints para catálogo, carrinho e checkout
-- ✅ **Sistema de Cashback**: Cálculo automático (1 ponto = R$ 1,00 a cada R$ 50,00)
-- ✅ **Endpoints Admin**: Gestão completa de produtos/pedidos/clientes
-- ✅ **API de Analytics**: Endpoints para dashboard e relatórios
-- ✅ **Controle de Estoque**: Atualização em tempo real via API
-- ✅ **Segurança Total**: Autenticação, validações, rate limiting
-- ✅ **Performance**: Paginação, filtros e consultas otimizadas
-
-### Detalhes Técnicos de Implementação
-
-#### Endpoints Críticos do Sistema
 ```
-// Dashboard e Relatórios
-GET  /api/stats/dashboard              # Estatísticas com filtros de período
-GET  /api/stats/revenue-monthly        # Receita dos últimos 12 meses
-
-// Gestão de Produtos
-GET  /api/produtos/categorias/distinct # Categorias para formulários
-GET  /api/produtos/low-stock          # Produtos com estoque baixo
-
-// Sistema de Pedidos
-POST /api/pedidos                     # Checkout com cashback automático
-DELETE /api/pedidos/:id               # Exclusão de pedidos (admin)
-
-// Gestão de Clientes
-GET  /api/usuarios/:id/pontos         # Consulta de pontos de cashback
-GET  /api/usuarios/:id/pedidos        # Histórico completo
+backend/
+├── config/                 # Configurações
+│   ├── database.js        # Conexão PostgreSQL
+│   └── production.js      # Configurações de produção
+├── database/              # Scripts do banco
+│   └── database.sql       # Schema completo
+├── middleware/            # Middlewares customizados
+│   ├── auth.js           # Autenticação JWT
+│   └── performance.js    # Otimizações de performance
+├── routes/               # Rotas da API
+│   ├── auth.js          # Autenticação
+│   ├── product.js       # Gestão de produtos
+│   ├── usuarios.js      # Gestão de usuários
+│   ├── pedidos.js       # Sistema de pedidos
+│   └── stats.js         # Estatísticas e dashboard
+├── scripts/              # Scripts utilitários
+│   ├── createAdmin.js   # Criação de administradores
+│   ├── adminManager.js  # Gerenciador completo
+│   └── README.md        # Documentação dos scripts
+├── utils/               # Utilitários
+│   ├── logger.js        # Sistema de logs
+│   └── cashback.js      # Cálculos de cashback
+├── server.js            # Servidor principal
+├── package.json         # Dependências
+└── README.md           # Esta documentação
 ```
 
-#### Principais Funcionalidades por Módulo
+## ⚙️ Instalação e Configuração
 
-**API de Produtos**:
-- CRUD completo com validações
-- Endpoints para categorias
-- Controle de estoque via API
-- Filtros e busca por parâmetros
-- Listagem paginada
-
-**API de Pedidos**:
-- Endpoint de checkout integrado
-- Cálculo automático de cashback
-- Criação de usuários na compra
-- Transações atomicas no banco
-- APIs de listagem e gestão
-
-**API de Usuários**:
-- Endpoints de cadastro e perfil
-- API de pontos de fidelidade
-- Histórico via API
-- Busca e ordenação para admin
-
-**API de Administração**:
-- Endpoints de autenticação
-- APIs de dashboard e métricas
-- Estatísticas em tempo real
-- Relatórios com filtros de período
-
----
-
-## 🏃‍♂️ Como Executar o Projeto
-
-### Pré-requisitos
-- Node.js (v16+)
-- PostgreSQL (v12+)
+### 1. Pré-requisitos
+- Node.js (v16 ou superior)
+- PostgreSQL (v12 ou superior)
 - npm ou yarn
 
-### 1. Configuração do Banco de Dados
+### 2. Clone e Instalação
 ```bash
-# 1. Criar banco PostgreSQL
-createdb loja_utilidades
-
-# 2. Executar script de criação das tabelas
-psql -d loja_utilidades -f database/database.sql
-```
-
-### 2. Configuração do Backend
-```bash
-# 1. Navegar para o diretório backend
+# Navegar para o diretório backend
 cd backend
 
-# 2. Instalar dependências
+# Instalar dependências
 npm install
+```
 
-# 3. Configurar variáveis de ambiente
-# Criar arquivo .env com:
+### 3. Configuração do Ambiente
+Criar arquivo `.env` na raiz do backend:
+
+```env
+# Servidor
 PORT=5000
-JWT_SECRET=sua_chave_secreta_aqui
+NODE_ENV=development
+
+# Banco de Dados
 DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=loja_utilidades
 DB_USER=seu_usuario
-DB_PASS=sua_senha
+DB_PASSWORD=sua_senha
 
-# 4. Criar administrador padrão
+# JWT
+JWT_SECRET=sua_chave_secreta_muito_segura
+
+# Logs
+LOG_LEVEL=info
+```
+
+### 4. Configuração do Banco
+```bash
+# Conectar ao PostgreSQL
+psql -U postgres
+
+# Criar banco de dados
+CREATE DATABASE loja_utilidades;
+
+# Executar script de criação das tabelas
+\i database/database.sql
+```
+
+### 5. Criar Administrador Inicial
+```bash
+# Criar admin padrão
 node scripts/createAdmin.js
 
-# 5. Iniciar servidor
-npm run dev  # Modo desenvolvimento
-# ou
-npm start    # Modo produção
+# Ou criar admin personalizado
+node scripts/createAdmin.js usuario senha "Nome Completo"
 ```
 
-### 3. Testar a API
+### 6. Iniciar Servidor
 ```bash
-# Verificar se a API está funcionando
-curl http://localhost:5000/api/health
+# Desenvolvimento (com hot reload)
+npm run dev
 
-# Fazer login admin
+# Produção
+npm start
+```
+
+## 🗄️ Banco de Dados
+
+### Tabelas Principais
+
+#### `administradores`
+- Gestão de usuários administrativos
+- Autenticação JWT
+- Controle de acesso
+
+#### `usuarios`
+- Clientes do sistema
+- Sistema de pontos (cashback)
+- Dados pessoais
+
+#### `produtos`
+- Catálogo de produtos
+- Controle de estoque
+- Categorização
+
+#### `pedidos`
+- Histórico de compras
+- Status de entrega
+- Integração com cashback
+
+#### `itens_pedido`
+- Itens de cada pedido
+- Quantidades e preços
+- Relacionamento com produtos
+
+### Índices de Performance
+- Busca por categoria de produtos
+- Filtros por nome e descrição
+- Otimização de consultas por usuário
+- Índices para sistema de cashback
+
+## 🔌 API Endpoints
+
+### Autenticação (`/api/auth`)
+```
+POST   /login          # Login de administrador
+GET    /verify         # Verificar token
+POST   /logout         # Logout
+```
+
+### Produtos (`/api/produtos`)
+```
+GET    /               # Listar produtos (público)
+GET    /low-stock      # Produtos com baixo estoque (admin)
+POST   /               # Criar produto (admin)
+PUT    /:id            # Atualizar produto (admin)
+DELETE /:id            # Deletar produto (admin)
+GET    /:id            # Buscar produto por ID (público)
+```
+
+### Usuários (`/api/usuarios`)
+```
+GET    /               # Listar usuários (admin)
+POST   /               # Criar usuário
+GET    /:id            # Buscar usuário por ID
+PUT    /:id            # Atualizar usuário
+DELETE /:id            # Deletar usuário (admin)
+GET    /:id/pedidos    # Pedidos do usuário
+```
+
+### Pedidos (`/api/pedidos`)
+```
+GET    /               # Listar pedidos (admin)
+POST   /               # Criar pedido (checkout)
+GET    /:id            # Buscar pedido por ID
+PUT    /:id/status     # Atualizar status (admin)
+DELETE /:id            # Cancelar pedido
+```
+
+### Estatísticas (`/api/stats`)
+```
+GET    /dashboard      # Métricas do dashboard
+GET    /revenue-monthly # Receita mensal
+```
+
+### Health Check
+```
+GET    /api/health     # Status da API
+```
+
+## 🔐 Autenticação e Segurança
+
+### JWT (JSON Web Tokens)
+- **Expiração**: 1 hora
+- **Algoritmo**: HS256
+- **Payload**: ID, usuário e tipo de acesso
+
+### Middleware de Segurança
+- **Helmet**: Headers de segurança
+- **Rate Limiting**: 100 requests por 15 minutos
+- **CORS**: Configuração de origens permitidas
+- **Validação**: Sanitização de dados de entrada
+
+### Controle de Acesso
+- **Admin**: Acesso total ao sistema
+- **Público**: Apenas leitura de produtos
+- **Usuários**: Gestão de próprios dados
+
+## 💰 Sistema de Cashback
+
+### Cálculo de Pontos
+- **1 ponto** por cada **R$ 50** em compras
+- **1 ponto = R$ 1** de desconto
+- **Acumulação automática** por pedido
+
+### Funcionalidades
+- **Geração automática** de pontos por compra
+- **Utilização** de pontos como desconto
+- **Validação** de pontos disponíveis
+- **Histórico** de pontos ganhos/utilizados
+
+### Exemplo de Uso
+```javascript
+// Compra de R$ 150 = 3 pontos
+// Desconto máximo = R$ 3
+// Total final = R$ 147
+```
+
+## 📊 Logs e Monitoramento
+
+### Sistema de Logs (Winston)
+- **Logs de Erro**: Arquivo `error.log`
+- **Logs Gerais**: Arquivo `combined.log`
+- **Logs de Acesso**: Arquivo `access.log`
+- **Rotação**: Máximo 5MB por arquivo
+
+### Monitoramento de Performance
+- **Requests Lentos**: > 1 segundo
+- **Requests Muito Lentos**: > 5 segundos
+- **Métricas**: Tempo de resposta, status codes
+- **Alertas**: Logs automáticos para problemas
+
+### Middleware de Performance
+- **Compressão**: Respostas otimizadas
+- **Cache**: Headers de cache apropriados
+- **Otimização**: Queries e conexões
+
+## 🔧 Scripts de Gerenciamento
+
+### Criação de Administradores
+```bash
+# Script simples
+node scripts/createAdmin.js
+
+# Com parâmetros
+node scripts/createAdmin.js usuario senha "Nome"
+
+# Gerenciador completo
+node scripts/adminManager.js
+```
+
+### Funcionalidades dos Scripts
+- **Criar administradores** com validação
+- **Listar** todos os administradores
+- **Atualizar** dados de administradores
+- **Deletar** administradores
+- **Buscar** por ID ou usuário
+
+### Exemplo de Saída
+```
+📋 Listando administradores...
+
+┌─────┬──────────────┬──────────────────────┬──────────────────────┐
+│ ID  │   Usuário    │         Nome         │    Último Acesso     │
+├─────┼──────────────┼──────────────────────┼──────────────────────┤
+│ 1   │ admin        │ Administrador        │ Nunca                │
+│ 2   │ joao         │ João Silva           │ 03/08/2025 22:01:56 │
+└─────┴──────────────┴──────────────────────┴──────────────────────┘
+```
+
+## 🚀 Deploy
+
+### Variáveis de Ambiente (Produção)
+```env
+NODE_ENV=production
+PORT=5000
+DB_HOST=seu_host_producao
+DB_NAME=loja_utilidades
+DB_USER=usuario_producao
+DB_PASSWORD=senha_producao
+JWT_SECRET=chave_super_secreta_producao
+```
+
+### Comandos de Deploy
+```bash
+# Instalar dependências
+npm install --production
+
+# Executar migrações do banco
+psql -h host -U usuario -d database -f database/database.sql
+
+# Criar administrador
+node scripts/createAdmin.js admin senha_segura "Admin"
+
+# Iniciar servidor
+npm start
+```
+
+### Configurações de Produção
+- **SSL**: Configuração automática para PostgreSQL
+- **Logs**: Apenas arquivos (sem console)
+- **Rate Limiting**: Configurações mais restritivas
+- **Compressão**: Otimizada para produção
+
+## 📝 Exemplos de Uso
+
+### Login de Administrador
+```bash
 curl -X POST http://localhost:5000/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"usuario":"admin","senha":"123456"}'
-
-# Listar produtos
-curl http://localhost:5000/api/produtos
+  -d '{"usuario": "admin", "senha": "admin123"}'
 ```
 
-### 4. Acessos da API
-- **Backend API**: http://localhost:5000/api
-- **Health Check**: http://localhost:5000/api/health
-- **Documentação**: Endpoints listados neste README
-- **Admin padrão**: 
-  - Usuário: `admin`
-  - Senha: `123456` (alterar após primeiro login)
-
-### 5. Scripts do Backend
+### Listar Produtos
 ```bash
-npm run dev        # Servidor com nodemon (desenvolvimento)
-npm start          # Servidor produção
-npm test           # Executar testes
-node scripts/createAdmin.js  # Criar administrador
+curl http://localhost:5000/api/produtos?categoria=cozinha&page=1&limit=10
 ```
+
+### Criar Pedido
+```bash
+curl -X POST http://localhost:5000/api/pedidos \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer SEU_TOKEN" \
+  -d '{
+    "usuario_id": 1,
+    "itens": [{"produto_id": 1, "quantidade": 2}],
+    "pontos_utilizados": 5
+  }'
+```
+
+### Dashboard Stats
+```bash
+curl http://localhost:5000/api/stats/dashboard?startDate=2024-01-01&endDate=2024-12-31
+```
+
+## 🐛 Troubleshooting
+
+### Problemas Comuns
+
+#### Erro de Conexão com Banco
+```bash
+# Verificar se PostgreSQL está rodando
+sudo systemctl status postgresql
+
+# Testar conexão
+psql -h localhost -U usuario -d loja_utilidades
+```
+
+#### Erro de Porta em Uso
+```bash
+# Verificar processos na porta
+lsof -i :5000
+
+# Matar processo se necessário
+kill -9 PID
+```
+
+#### Problemas de Permissão
+```bash
+# Verificar permissões do diretório
+ls -la
+
+# Ajustar permissões se necessário
+chmod 755 .
+```
+
+## 📞 Suporte
+
+Para dúvidas ou problemas:
+1. Verificar logs em `logs/`
+2. Consultar documentação da API
+3. Verificar configurações do `.env`
+4. Testar conexão com banco de dados
 
 ---
 
-*API Backend totalmente implementada e funcional*
-*Última atualização: Janeiro 2025*
-*Versão: 2.0 - Backend Completo*
+**Desenvolvido com ❤️ para Loja de Utilidades Domésticas**
