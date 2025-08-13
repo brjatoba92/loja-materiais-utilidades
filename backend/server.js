@@ -17,8 +17,8 @@ app.use(helmet());
 const allowedOrigins = [
     'http://localhost:3000',
     'http://localhost:5173',
-    'https://seu-frontend.vercel.app', // Substitua pela URL do seu frontend
-    'https://loja-utilidades.vercel.app' // Exemplo de URL
+    'https://loja-utilidades.vercel.app',
+    'https://frontend-dun-omega-57.vercel.app'
 ];
 
 app.use(cors({
@@ -107,14 +107,12 @@ app.use('*', (req, res) => {
 // ============================================
 const PORT = process.env.PORT || 5000;
 
-// Iniciar servidor apenas se não estiver em produção (para Railway/Render)
-if (process.env.NODE_ENV !== 'production') {
-    app.listen(PORT, () => {
-        console.log(`🚀 Servidor rodando na porta ${PORT}`);
-        console.log(`📊 Ambiente: ${process.env.NODE_ENV || 'development'}`);
-        console.log(`🌐 URL: http://localhost:${PORT}/api/health`);
-    });
-}
+// Iniciar servidor sempre (para Railway)
+app.listen(PORT, () => {
+    console.log(`🚀 Servidor rodando na porta ${PORT}`);
+    console.log(`📊 Ambiente: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`🌐 URL: http://localhost:${PORT}/api/health`);
+});
 
 // Exportar para deploy (Railway/Render)
 module.exports = app;
