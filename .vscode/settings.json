@@ -8,6 +8,21 @@
             "name": "brunojatoba",
             "database": "loja_utilidades",
             "username": "brunodev"
+        },
+        {
+            "pgOptions": {
+                "ssl": {
+                    "rejectUnauthorized": true
+                }
+            },
+            "previewLimit": 50,
+            "server": "dpg-d2f4tf3ipnbc739o1e6g-a.oregon-postgres.render.com",
+            "port": 5432,
+            "askForPassword": true,
+            "driver": "PostgreSQL",
+            "name": "loja-utilidades-render",
+            "database": "loja_utilidades_vjg8",
+            "username": "loja_user"
         }
     ]
 }
