@@ -14,7 +14,13 @@ router.get('/test', async (req, res) => {
         const client = await pool.connect();
         console.log('✅ Conexão estabelecida!');
         
-        // Verificar se tabela produtos existe
+        // Teste 1: Query simples
+        console.log('📋 Teste 1: Query simples...');
+        const simpleResult = await client.query('SELECT 1 as test');
+        console.log('✅ Query simples OK:', simpleResult.rows[0]);
+        
+        // Teste 2: Verificar se tabela produtos existe
+        console.log('📋 Teste 2: Verificar tabela produtos...');
         const tablesResult = await client.query(`
             SELECT table_name 
             FROM information_schema.tables 
@@ -22,33 +28,31 @@ router.get('/test', async (req, res) => {
         `);
         
         const produtosExists = tablesResult.rows.length > 0;
+        console.log('✅ Tabela produtos existe:', produtosExists);
         
         if (produtosExists) {
-            console.log('✅ Tabela produtos encontrada!');
-            
-            // Contar produtos
+            // Teste 3: Query simples na tabela produtos
+            console.log('📋 Teste 3: Query simples na tabela produtos...');
             const countResult = await client.query('SELECT COUNT(*) FROM produtos');
             const total = countResult.rows[0].count;
+            console.log('✅ Total de produtos:', total);
+            
+            // Teste 4: Query com WHERE ativo = true
+            console.log('📋 Teste 4: Query com WHERE ativo = true...');
+            const ativoResult = await client.query('SELECT COUNT(*) FROM produtos WHERE ativo = true');
+            const ativoTotal = ativoResult.rows[0].count;
+            console.log('✅ Produtos ativos:', ativoTotal);
             
             res.json({
                 success: true,
-                message: 'Conexão OK - Tabela produtos existe',
-                total_produtos: total
+                message: 'Todos os testes passaram!',
+                total_produtos: total,
+                produtos_ativos: ativoTotal
             });
         } else {
-            console.log('❌ Tabela produtos NÃO encontrada!');
-            
-            // Listar todas as tabelas
-            const allTablesResult = await client.query(`
-                SELECT table_name 
-                FROM information_schema.tables 
-                WHERE table_schema = 'public'
-            `);
-            
             res.json({
                 success: false,
-                message: 'Tabela produtos não encontrada',
-                tabelas_existentes: allTablesResult.rows.map(row => row.table_name)
+                message: 'Tabela produtos não encontrada'
             });
         }
         
@@ -56,10 +60,12 @@ router.get('/test', async (req, res) => {
         
     } catch (error) {
         console.error('❌ Erro ao testar banco:', error.message);
+        console.error('Stack:', error.stack);
         res.status(500).json({
             success: false,
             message: 'Erro de conexão com banco',
-            error: error.message
+            error: error.message,
+            stack: error.stack
         });
     }
 });
