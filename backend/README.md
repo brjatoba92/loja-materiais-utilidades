@@ -14,7 +14,7 @@ Backend completo para sistema de loja de utilidades domésticas com autenticaç�
 - [Sistema de Cashback](#-sistema-de-cashback)
 - [Logs e Monitoramento](#-logs-e-monitoramento)
 - [Scripts de Gerenciamento](#-scripts-de-gerenciamento)
-- [Deploy](#-deploy)
+
 
 ## 🚀 Funcionalidades
 
@@ -83,7 +83,7 @@ Backend completo para sistema de loja de utilidades domésticas com autenticaç�
 backend/
 ├── config/                 # Configurações
 │   ├── database.js        # Conexão PostgreSQL
-│   └── production.js      # Configurações de produção
+
 ├── database/              # Scripts do banco
 │   └── database.sql       # Schema completo
 ├── middleware/            # Middlewares customizados
@@ -349,39 +349,7 @@ node scripts/adminManager.js
 └─────┴──────────────┴──────────────────────┴──────────────────────┘
 ```
 
-## 🚀 Deploy
 
-### Variáveis de Ambiente (Produção)
-```env
-NODE_ENV=production
-PORT=5000
-DB_HOST=seu_host_producao
-DB_NAME=loja_utilidades
-DB_USER=usuario_producao
-DB_PASSWORD=senha_producao
-JWT_SECRET=chave_super_secreta_producao
-```
-
-### Comandos de Deploy
-```bash
-# Instalar dependências
-npm install --production
-
-# Executar migrações do banco
-psql -h host -U usuario -d database -f database/database.sql
-
-# Criar administrador
-node scripts/createAdmin.js admin senha_segura "Admin"
-
-# Iniciar servidor
-npm start
-```
-
-### Configurações de Produção
-- **SSL**: Configuração automática para PostgreSQL
-- **Logs**: Apenas arquivos (sem console)
-- **Rate Limiting**: Configurações mais restritivas
-- **Compressão**: Otimizada para produção
 
 ## 📝 Exemplos de Uso
 

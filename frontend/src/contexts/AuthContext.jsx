@@ -40,8 +40,12 @@ export const AuthProvider = ({ children }) => {
   }
 
   const login = async (usuario, senha) => {
+    console.log('🔐 Tentando login com:', { usuario, senha })
+    
     try {
+      console.log('📡 Fazendo requisição para /auth/login')
       const response = await api.post('/auth/login', { usuario, senha })
+      console.log('✅ Resposta da API:', response.data)
       
       const { token, admin } = response.data
       
@@ -53,6 +57,8 @@ export const AuthProvider = ({ children }) => {
 
       return { success: true }
     } catch (error) {
+      console.error('❌ Erro no login:', error)
+      console.error('❌ Detalhes do erro:', error.response?.data)
       const message = error.response?.data?.message || 'Erro ao fazer login. Tente novamente.'
       toast.error(message)
       return { success: false, message }
