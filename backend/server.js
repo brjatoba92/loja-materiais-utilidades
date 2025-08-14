@@ -10,6 +10,9 @@ const app = express();
 // MIDDLEWARES GLOBAIS
 // ============================================
 
+// Trust proxy para Render
+app.set('trust proxy', 1);
+
 // Segurança
 app.use(helmet());
 
