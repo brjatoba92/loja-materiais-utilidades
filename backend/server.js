@@ -10,36 +10,12 @@ const app = express();
 // MIDDLEWARES GLOBAIS
 // ============================================
 
-// Trust proxy para Render
-app.set('trust proxy', 1);
-
 // Segurança
 app.use(helmet());
 
-// CORS - Configuração para produção
-const allowedOrigins = [
-    'http://localhost:3000',
-    'http://localhost:5173',
-    'https://loja-utilidades.vercel.app',
-    'https://frontend-dun-omega-57.vercel.app'
-];
-
+// CORS - Configuração para desenvolvimento local
 app.use(cors({
-    origin: function (origin, callback) {
-        // Permitir requests sem origin (como mobile apps ou curl)
-        if (!origin) return callback(null, true);
-        
-        if (allowedOrigins.indexOf(origin) !== -1) {
-            callback(null, true);
-        } else {
-            // Em desenvolvimento, aceitar todas as origens
-            if (process.env.NODE_ENV === 'development') {
-                callback(null, true);
-            } else {
-                callback(new Error('Not allowed by CORS'));
-            }
-        }
-    },
+    origin: ['http://localhost:3000', 'http://localhost:5173'],
     credentials: true
 }));
 
@@ -110,12 +86,11 @@ app.use('*', (req, res) => {
 // ============================================
 const PORT = process.env.PORT || 5000;
 
-// Iniciar servidor sempre (para Railway)
+// Iniciar servidor
 app.listen(PORT, () => {
     console.log(`🚀 Servidor rodando na porta ${PORT}`);
     console.log(`📊 Ambiente: ${process.env.NODE_ENV || 'development'}`);
     console.log(`🌐 URL: http://localhost:${PORT}/api/health`);
 });
 
-// Exportar para deploy (Railway/Render)
 module.exports = app;

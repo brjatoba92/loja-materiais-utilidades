@@ -14,7 +14,7 @@ Frontend moderno e responsivo para sistema de loja de utilidades domésticas, de
 - [Sistema de Carrinho](#-sistema-de-carrinho)
 - [API e Serviços](#-api-e-serviços)
 - [Estilização e UI/UX](#-estilização-e-uiux)
-- [Deploy](#-deploy)
+
 
 ## 🚀 Funcionalidades
 
@@ -400,48 +400,7 @@ colors: {
 - **Success**: Confirmações positivas
 - **Empty**: Estados vazios informativos
 
-## 🚀 Deploy
 
-### **Build de Produção**
-```bash
-# Gerar build otimizado
-npm run build
-
-# Arquivos gerados em /dist
-```
-
-### **Configuração de Produção**
-```javascript
-// vite.config.production.js
-export default defineConfig({
-  build: {
-    outDir: 'dist',
-    sourcemap: false,
-    minify: 'terser',
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom'],
-          router: ['react-router-dom'],
-          utils: ['axios', 'react-hook-form']
-        }
-      }
-    }
-  }
-})
-```
-
-### **Otimizações**
-- **Code Splitting**: Chunks separados por funcionalidade
-- **Tree Shaking**: Remoção de código não utilizado
-- **Minificação**: Código e CSS comprimidos
-- **Cache Busting**: Nomes de arquivo com hash
-
-### **Deploy em Servidores**
-- **Nginx**: Configuração para SPA
-- **Apache**: .htaccess para roteamento
-- **CDN**: Distribuição de conteúdo
-- **HTTPS**: Certificado SSL obrigatório
 
 ## 📱 Funcionalidades Mobile
 

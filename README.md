@@ -10,8 +10,7 @@ Sistema de e-commerce totalmente funcional com painel administrativo avançado, 
 ✅ **E-commerce**: Catálogo + carrinho + checkout + cashback  
 ✅ **Banco de Dados**: PostgreSQL com 5 tabelas relacionadas  
 ✅ **Segurança**: JWT + validações + rate limiting  
-✅ **CI/CD**: Pipeline automatizado com GitHub Actions  
-✅ **Deploy**: Scripts completos para produção  
+✅ **Desenvolvimento**: Configurado para rodar localmente  
 
 ## 📋 Índice
 
@@ -22,7 +21,7 @@ Sistema de e-commerce totalmente funcional com painel administrativo avançado, 
 - [Instalação e Configuração](#instalação-e-configuração)
 - [Como Usar](#como-usar)
 - [API Endpoints](#api-endpoints)
-- [Deploy](#deploy)
+
 - [Documentação](#documentação)
 
 ## 🚀 Visão Geral
@@ -33,7 +32,7 @@ Sistema completo de e-commerce para loja de utilidades domésticas, desenvolvido
 - **Frontend**: SPA React com Vite e Tailwind CSS
 - **Backend**: API RESTful com Node.js/Express
 - **Banco**: PostgreSQL com relacionamentos otimizados
-- **Deploy**: CI/CD automatizado com GitHub Actions
+- **Desenvolvimento**: Configurado para rodar localmente
 
 ### 🎯 **Objetivos Alcançados**
 - Interface responsiva e moderna
@@ -41,7 +40,7 @@ Sistema completo de e-commerce para loja de utilidades domésticas, desenvolvido
 - Gestão completa de produtos e pedidos
 - Dashboard administrativo com analytics
 - Sistema de cashback automático
-- Deploy automatizado em produção
+- Desenvolvimento local otimizado
 
 ## ✨ Funcionalidades
 
@@ -112,12 +111,12 @@ Sistema completo de e-commerce para loja de utilidades domésticas, desenvolvido
 - **winston** - Sistema de logs
 - **compression** - Compressão de respostas
 
-### **DevOps & Deploy**
-- **GitHub Actions** - CI/CD Pipeline
-- **Nginx** - Servidor web e proxy reverso
-- **PM2** - Process manager para Node.js
-- **Let's Encrypt** - Certificados SSL gratuitos
-- **Docker** - Containerização (opcional)
+### **Desenvolvimento Local**
+- **Nodemon** - Hot reload para desenvolvimento
+- **Vite** - Build tool e dev server
+- **PostgreSQL** - Banco de dados local
+- **Logs** - Sistema de logging detalhado
+- **Debug** - Configuração para debugging
 
 ## 📁 Estrutura do Projeto
 
@@ -142,8 +141,7 @@ loja-materiais-utilidades/
 │   │   ├── logger.js           # Sistema de logs
 │   │   └── cashback.js         # Cálculos de cashback
 │   ├── 📁 config/              # Configurações
-│   │   ├── database.js         # Conexão PostgreSQL
-│   │   └── production.js       # Configurações de produção
+│   │   └── database.js         # Conexão PostgreSQL
 │   ├── server.js               # Servidor principal
 │   └── README.md               # Documentação da API
 │
@@ -184,17 +182,7 @@ loja-materiais-utilidades/
 │   ├── tailwind.config.js      # Configuração do Tailwind
 │   └── README.md               # Documentação do frontend
 │
-├── 📁 deploy/                   # Scripts de deploy
-│   ├── setup-server.sh         # Setup inicial do servidor
-│   ├── deploy.sh               # Script de deploy
-│   ├── nginx.conf              # Configuração do Nginx
-│   └── ecosystem.config.js     # Configuração do PM2
-│
-├── 📁 .github/                  # CI/CD Pipeline
-│   └── 📁 workflows/
-│       └── ci-cd.yml           # GitHub Actions
-│
-├── DEPLOY.md                    # Guia completo de deploy
+
 └── README.md                    # Esta documentação
 ```
 
@@ -358,53 +346,13 @@ GET /api/stats/revenue-monthly          # Receita mensal (12 meses)
 GET /api/health                         # Status da API
 ```
 
-## 🚀 Deploy
 
-### **Deploy Automatizado**
-O projeto inclui pipeline CI/CD completo com GitHub Actions:
-
-```yaml
-# .github/workflows/ci-cd.yml
-- Testes automatizados
-- Build de produção
-- Deploy para staging/produção
-- Monitoramento de qualidade
-```
-
-### **Deploy Manual**
-
-#### **Setup Rápido**
-```bash
-# 1. Setup do servidor
-sudo bash deploy/setup-server.sh
-
-# 2. Configurar domínio e SSL
-# Editar deploy/nginx.conf com seu domínio
-sudo certbot --nginx -d seudominio.com
-
-# 3. Deploy da aplicação
-./deploy/deploy.sh
-```
-
-#### **Configurações de Produção**
-- **Nginx**: Proxy reverso e SSL
-- **PM2**: Process manager para Node.js
-- **PostgreSQL**: Banco de dados otimizado
-- **Backup**: Automático diário
-- **Monitoramento**: Logs estruturados
-
-### **Documentação Completa de Deploy**
-- 📖 [Guia de Deploy Completo](DEPLOY.md)
-- 🔧 [Configurações de Produção](backend/config/production.js)
-- 📊 [Monitoramento e Logs](backend/utils/logger.js)
-- 🔄 [CI/CD Pipeline](.github/workflows/ci-cd.yml)
 
 ## 📚 Documentação
 
 ### **Documentação Detalhada**
 - **Backend**: [backend/README.md](backend/README.md) - API completa e endpoints
 - **Frontend**: [frontend/README.md](frontend/README.md) - Componentes e arquitetura
-- **Deploy**: [DEPLOY.md](DEPLOY.md) - Guia completo de produção
 
 ### **Scripts Úteis**
 
@@ -444,10 +392,10 @@ npm run lint         # Linting de código
 - Validações client-side e server-side
 - Design responsivo mobile-first
 
-### **🚀 Deploy e Produção**
-- CI/CD Pipeline automatizado
-- SSL/HTTPS com Let's Encrypt
-- Monitoramento e logs estruturados
+### **🚀 Desenvolvimento Local**
+- Configuração simplificada para desenvolvimento
+- Hot reload e debugging otimizado
+- Logs detalhados para desenvolvimento
 - Backup automático do banco
 - Performance otimizada
 

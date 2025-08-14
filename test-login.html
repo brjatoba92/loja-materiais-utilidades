@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Login</title>
+</head>
+<body>
+    <h1>Teste de Login Admin</h1>
+    <form id="loginForm">
+        <div>
+            <label for="usuario">Usuário:</label>
+            <input type="text" id="usuario" value="admin" required>
+        </div>
+        <div>
+            <label for="senha">Senha:</label>
+            <input type="password" id="senha" value="admin123" required>
+        </div>
+        <button type="submit">Login</button>
+    </form>
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const usuario = document.getElementById('usuario').value;
+            const senha = document.getElementById('senha').value;
+            const resultDiv = document.getElementById('result');
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ usuario, senha })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    resultDiv.innerHTML = `
+                        <h3>✅ Login realizado com sucesso!</h3>
+                        <p>Token: ${data.token.substring(0, 50)}...</p>
+                        <p>Admin: ${data.admin.usuario}</p>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <h3>❌ Erro no login</h3>
+                        <p>Mensagem: ${data.message}</p>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <h3>❌ Erro de conexão</h3>
+                    <p>Erro: ${error.message}</p>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
