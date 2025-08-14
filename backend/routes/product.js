@@ -5,6 +5,64 @@ const { authenticateToken, isAdmin } = require('../middleware/auth');
 
 const router = express.Router();
 
+// ROTA DE TESTE - Verificar conexão com banco
+router.get('/test', async (req, res) => {
+    try {
+        console.log('🔍 Testando conexão com banco...');
+        
+        // Testar conexão simples
+        const client = await pool.connect();
+        console.log('✅ Conexão estabelecida!');
+        
+        // Verificar se tabela produtos existe
+        const tablesResult = await client.query(`
+            SELECT table_name 
+            FROM information_schema.tables 
+            WHERE table_schema = 'public' AND table_name = 'produtos'
+        `);
+        
+        const produtosExists = tablesResult.rows.length > 0;
+        
+        if (produtosExists) {
+            console.log('✅ Tabela produtos encontrada!');
+            
+            // Contar produtos
+            const countResult = await client.query('SELECT COUNT(*) FROM produtos');
+            const total = countResult.rows[0].count;
+            
+            res.json({
+                success: true,
+                message: 'Conexão OK - Tabela produtos existe',
+                total_produtos: total
+            });
+        } else {
+            console.log('❌ Tabela produtos NÃO encontrada!');
+            
+            // Listar todas as tabelas
+            const allTablesResult = await client.query(`
+                SELECT table_name 
+                FROM information_schema.tables 
+                WHERE table_schema = 'public'
+            `);
+            
+            res.json({
+                success: false,
+                message: 'Tabela produtos não encontrada',
+                tabelas_existentes: allTablesResult.rows.map(row => row.table_name)
+            });
+        }
+        
+        client.release();
+        
+    } catch (error) {
+        console.error('❌ Erro ao testar banco:', error.message);
+        res.status(500).json({
+            success: false,
+            message: 'Erro de conexão com banco',
+            error: error.message
+        });
+    }
+});
 
 // LISTAR PRODUTOS (publico)
 router.get('/', async (req, res) => {
